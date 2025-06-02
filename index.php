@@ -1,8 +1,10 @@
-<!DOCTYPE html><html lang="en">
+<?php include 'conn.php';?>
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CodeClan Navbar</title>
+  <title>CodeClan - The home of titans</title>
   <script src="/tailwind.js"></script>
 <!-- Tailwind CSS -->
 <script>
@@ -77,5 +79,8 @@ include 'hero.php';
 include 'about.php';
 include 'idolo.php';
 include 'programs.php';
-include 'community.php';?>
+include 'community.php';
+include 'why_join_us.php';
+include 'events.php';
+?>
 </html>

@@ -11,19 +11,35 @@
     <!-- Gradient Edges -->
     <div class="absolute top-0 left-0 h-full w-20 bg-gradient-to-r from-white via-white/50 to-transparent dark:from-[#0D0D0D] dark:via-[#0D0D0D]/50 z-10"></div>
     <div class="absolute top-0 right-0 h-full w-20 bg-gradient-to-l from-white via-white/50 to-transparent dark:from-[#0D0D0D] dark:via-[#0D0D0D]/50 z-10"></div><!-- Logo Slider -->
-<div class="overflow-hidden">
-  <div
-    class="flex items-center gap-10 animate-slide-infinite hover:pause-animation"
-  >
-        <img src="https://avatars.githubusercontent.com/u/117399956?v=4" alt="Honour" class="w-20 h-20 object-cover rounded-full hover:scale-110 transition-transform duration-300" />
-    <img src="https://avatars.githubusercontent.com/u/193069706?v=4" alt="Precious" class="w-20 h-20 object-cover rounded-full hover:scale-110 transition-transform duration-300" />
-    <img src="https://avatars.githubusercontent.com/u/106148374?v=4" alt="Whakee" class="w-20 h-20 object-cover rounded-full hover:scale-110 transition-transform duration-300" />
-    <img src="https://via.placeholder.com/80x80?text=Dev4" alt="Dev4" class="w-20 h-20 object-cover rounded-full hover:scale-110 transition-transform duration-300" />
-    <img src="https://via.placeholder.com/80x80?text=Dev5" alt="Dev5" class="w-20 h-20 object-cover rounded-full hover:scale-110 transition-transform duration-300" />
-    <img src="https://via.placeholder.com/80x80?text=Dev6" alt="Dev6" class="w-20 h-20 object-cover rounded-full hover:scale-110 transition-transform duration-300" />
-    <img src="https://via.placeholder.com/80x80?text=Dev7" alt="Dev7" class="w-20 h-20 object-cover rounded-full hover:scale-110 transition-transform duration-300" />
-    <!-- Repeat to fill scroll -->
+
+<div class="relative overflow-hidden">
+  <div class="flex items-center gap-10 animate-slide-infinite hover:pause-animation px-4 py-6">
+    <?php
+      $sql = "SELECT name, image_url FROM devs";
+      $result = $conn->query($sql);
+
+      if ($result && $result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+          $name = htmlspecialchars($row['name']);
+          $image = htmlspecialchars($row['image_url']);
+          echo <<<HTML
+            <img 
+              src="$image" 
+              alt="$name" 
+              title="$name"
+              class="w-20 h-20 object-cover rounded-full hover:scale-110 transition-transform duration-300"
+            />
+          HTML;
+        }
+      } else {
+        echo "<p class='text-gray-500 dark:text-gray-400'>No developers found.</p>";
+      }
+    ?>
   </div>
+
+  <!-- Edge Fade (Optional) -->
+  <div class="absolute top-0 left-0 w-12 h-full bg-gradient-to-r from-white via-white/60 dark:from-[#0d0d0d] dark:via-[#0d0d0d]/60 pointer-events-none"></div>
+  <div class="absolute top-0 right-0 w-12 h-full bg-gradient-to-l from-white via-white/60 dark:from-[#0d0d0d] dark:via-[#0d0d0d]/60 pointer-events-none"></div>
 </div>
 
   </div>

@@ -41,7 +41,7 @@
            w-full max-w-lg h-96"
   >
     <span class="text-gray-500 dark:text-green-400 italic">
-      Right side content here (slider, images, etc.)
+      Right side content here (slider, images, etc.).Stil on it though
     </span>
   </div>
 </section>

@@ -3,7 +3,14 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
     <!-- Logo -->
     <div class="flex items-center">
-      <a href="/" class="text-2xl font-black text-[#39FF14] tracking-wide drop-shadow-lg">CodeClan</a>
+<a href="/" class="flex items-center gap-3">
+  <img 
+    src="assets/img/codeclanlogo3d.png" 
+    alt="CodeClan Logo" 
+    class="w-10 h-10 sm:w-12 sm:h-12 object-contain drop-shadow-md transition-transform duration-300 hover:scale-105"
+  />
+  <span class="text-2xl font-black text-[#39FF14] tracking-wide drop-shadow-lg dark:text-[#39FF14]">CodeClan</span>
+</a>
     </div>
 
     <!-- Desktop Nav -->
@@ -81,20 +88,29 @@
   const sidebar = document.getElementById('sidebar');
   const overlay = document.getElementById('overlay');
   const closeSidebar = document.getElementById('closeSidebar');
+  const sidebarLinks = sidebar.querySelectorAll('a');
 
-  menuBtn.addEventListener('click', () => {
+  const openSidebar = () => {
     sidebar.classList.remove('-translate-x-full');
+    sidebar.classList.add('translate-x-0');
     overlay.classList.remove('hidden');
-  });
+    overlay.classList.add('bg-black/50', 'backdrop-blur-sm');
+  };
 
-  closeSidebar.addEventListener('click', () => {
+  const closeSidebarFn = () => {
     sidebar.classList.add('-translate-x-full');
+    sidebar.classList.remove('translate-x-0');
     overlay.classList.add('hidden');
-  });
+    overlay.classList.remove('bg-black/50', 'backdrop-blur-sm');
+  };
 
-  overlay.addEventListener('click', () => {
-    sidebar.classList.add('-translate-x-full');
-    overlay.classList.add('hidden');
+  menuBtn.addEventListener('click', openSidebar);
+  closeSidebar.addEventListener('click', closeSidebarFn);
+  overlay.addEventListener('click', closeSidebarFn);
+
+  // Close sidebar when any link inside it is clicked
+  sidebarLinks.forEach(link => {
+    link.addEventListener('click', closeSidebarFn);
   });
 
   // Theme toggle

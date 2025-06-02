@@ -21,7 +21,7 @@
 <div class="relative">
   <div class="w-full h-72 md:h-96 rounded-3xl overflow-hidden shadow-xl border border-gray-300 dark:border-gray-700">
     <img 
-      src="https://avatars.githubusercontent.com/u/193069706?v=4" 
+      src="./assets/img/ccmlaptop.png" 
       alt="About CodeClan" 
       class="w-full h-full object-cover scale-100 hover:scale-105 transition-transform duration-500"
     >

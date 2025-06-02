@@ -25,7 +25,7 @@
 
     <!-- Image or Illustration -->
     <div class="md:w-1/2 flex justify-center">
-      <img src="assets/community-illustration.svg" alt="CodeClan Community" class="w-full max-w-md md:max-w-lg rounded-3xl shadow-xl hover:shadow-2xl transition duration-300 ease-in-out hover:scale-[1.02]" />
+      <img src="./assets/img/ccmhoodie.png" alt="CodeClan Community" class="w-full max-w-md md:max-w-lg rounded-3xl shadow-xl hover:shadow-2xl transition duration-300 ease-in-out hover:scale-[1.02]" />
     </div>
   </div>
 </section>
