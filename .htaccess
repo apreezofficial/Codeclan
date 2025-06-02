@@ -1,0 +1,4 @@
+#To Enable URL rewriting for pages
+RewriteEngine On
+
+ErrorDocument 404 /404.php

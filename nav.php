@@ -1,4 +1,64 @@
-<!-- navbar.php -->
+
+  <style>
+  :root {
+  /* Light Theme Scrollbar Colors */
+  --scrollbar-track: #f4f4f4;    /* Cloud White background */
+  --scrollbar-thumb: #1e88e5;    /* Electric Blue accent */
+}
+
+[data-theme='dark'] {
+  /* Dark Theme Scrollbar Colors */
+  --scrollbar-track: #0d0d0d;    /* Jet Black background */
+  --scrollbar-thumb: #39ff14;    /* Neon Green accent */
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 4rem; 
+}
+
+/* Keyboard focus nice scroll offset */
+:focus-visible {
+  scroll-margin-top: 4rem;
+}
+
+/* Scrollbar Styling for WebKit Browsers */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 10px;
+  border: 2px solid var(--scrollbar-track);
+  transition: background-color 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb);
+  filter: brightness(1.2);
+}
+
+/* Firefox Scrollbar Styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+    .slidebar {
+      transition: transform 0.4s ease;
+    }
+    .slidebar.hidden {
+      transform: translateX(-100%);
+    }
+    .slidebar.visible {
+      transform: translateX(0);
+    }
+  </style>
 <nav class="fixed top-0 left-0 w-full z-50 backdrop-blur-lg bg-white dark:bg-black shadow-md border-b border-gray-200 dark:border-gray-800 transition-colors duration-300">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
     <!-- Logo -->

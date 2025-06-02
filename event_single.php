@@ -80,10 +80,7 @@ $detailsHtml = $Parsedown->text($event['details'] ?? '');
   @tailwind utilities;
 </style>
 <body class="bg-white dark:bg-[#0B0B0B] text-gray-900 dark:text-white font-sans">
-  <?php include 'nav.php';?>
-
-
-
+<?php include 'nav.php';?>
 <div class="max-w-4xl mx-auto px-4 py-20">
   <a href="index.php#events" class="text-sm text-[#1E88E5] dark:text-[#39FF14] hover:underline mb-6 inline-block">
     ← Back to Events
@@ -113,5 +110,6 @@ $detailsHtml = $Parsedown->text($event['details'] ?? '');
     </div>
   </div>
 </div>
+<?php include 'footer.php';?>
 </body>
 </html>
