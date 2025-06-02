@@ -1,64 +1,66 @@
 
-  <style>
+<style>
+  /* Define variables based on system or manual theme */
   :root {
-  /* Light Theme Scrollbar Colors */
-  --scrollbar-track: #f4f4f4;    /* Cloud White background */
-  --scrollbar-thumb: #1e88e5;    /* Electric Blue accent */
-}
+    --scrollbar-track: #f4f4f4; /* Light: Cloud White */
+    --scrollbar-thumb: #1e88e5; /* Light: Electric Blue */
+  }
 
-[data-theme='dark'] {
-  /* Dark Theme Scrollbar Colors */
-  --scrollbar-track: #0d0d0d;    /* Jet Black background */
-  --scrollbar-thumb: #39ff14;    /* Neon Green accent */
-}
+  html.dark,
+  [data-theme='dark'] {
+    --scrollbar-track: #0d0d0d; /* Dark: Jet Black */
+    --scrollbar-thumb: #39ff14; /* Dark: Neon Green */
+  }
 
-html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 4rem; 
-}
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 4rem;
+  }
 
-/* Keyboard focus nice scroll offset */
-:focus-visible {
-  scroll-margin-top: 4rem;
-}
+  :focus-visible {
+    scroll-margin-top: 4rem;
+  }
 
-/* Scrollbar Styling for WebKit Browsers */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
+  /* Scrollbar for WebKit (Chrome, Edge, Safari) */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
 
-::-webkit-scrollbar-track {
-  background: var(--scrollbar-track);
-}
+  ::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
 
-::-webkit-scrollbar-thumb {
-  background-color: var(--scrollbar-thumb);
-  border-radius: 10px;
-  border: 2px solid var(--scrollbar-track);
-  transition: background-color 0.3s ease;
-}
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb);
+    border-radius: 10px;
+    border: 2px solid var(--scrollbar-track);
+    transition: background-color 0.3s ease;
+  }
 
-::-webkit-scrollbar-thumb:hover {
-  background-color: var(--scrollbar-thumb);
-  filter: brightness(1.2);
-}
+  ::-webkit-scrollbar-thumb:hover {
+    filter: brightness(1.2);
+  }
 
-/* Firefox Scrollbar Styling */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
-}
-    .slidebar {
-      transition: transform 0.4s ease;
-    }
-    .slidebar.hidden {
-      transform: translateX(-100%);
-    }
-    .slidebar.visible {
-      transform: translateX(0);
-    }
-  </style>
+  /* Firefox Scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  }
+
+  /* Slidebar classes */
+  .slidebar {
+    transition: transform 0.4s ease;
+  }
+
+  .slidebar.hidden {
+    transform: translateX(-100%);
+  }
+
+  .slidebar.visible {
+    transform: translateX(0);
+  }
+</style>
 <nav class="fixed top-0 left-0 w-full z-50 backdrop-blur-lg bg-white dark:bg-black shadow-md border-b border-gray-200 dark:border-gray-800 transition-colors duration-300">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
     <!-- Logo -->
@@ -173,20 +175,38 @@ html {
     link.addEventListener('click', closeSidebarFn);
   });
 
-  // Theme toggle
   const themeToggle = document.getElementById('themeToggle');
   const themeToggleMobile = document.getElementById('themeToggleMobile');
 
-  function toggleTheme() {
-    document.documentElement.classList.toggle('dark');
-    localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
-  }
+  // Initial theme setup
+  const savedTheme = localStorage.getItem('theme');
 
-  themeToggle.addEventListener('click', toggleTheme);
-  themeToggleMobile.addEventListener('click', toggleTheme);
-
-  // Persist theme
-  if (localStorage.getItem('theme') === 'dark') {
+  if (savedTheme === 'dark') {
     document.documentElement.classList.add('dark');
+  } else if (savedTheme === 'light') {
+    document.documentElement.classList.remove('dark');
+  } else {
+    // No preference saved — use system preference
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.classList.toggle('dark', prefersDark);
+    localStorage.setItem('theme', prefersDark ? 'dark' : 'light');
   }
+
+//forst timer uses system theme 
+  if (!savedTheme) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      const prefersDark = e.matches;
+      document.documentElement.classList.toggle('dark', prefersDark);
+      localStorage.setItem('theme', prefersDark ? 'dark' : 'light');
+    });
+  }
+
+  // User toggle theme manually
+  function toggleTheme() {
+    const isDark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  }
+
+  themeToggle?.addEventListener('click', toggleTheme);
+  themeToggleMobile?.addEventListener('click', toggleTheme);
 </script>
