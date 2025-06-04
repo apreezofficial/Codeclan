@@ -77,11 +77,11 @@
 
     <!-- Desktop Nav -->
     <div class="hidden md:flex space-x-6 items-center text-sm font-semibold text-gray-800 dark:text-gray-100">
-      <a href="#about" class="hover:text-[#1E88E5] transition duration-300">About</a>
-      <a href="#programs" class="hover:text-[#1E88E5] transition duration-300">Programs</a>
-      <a href="#community" class="hover:text-[#1E88E5] transition duration-300">Community</a>
-      <a href="#events" class="hover:text-[#1E88E5] transition duration-300">Events</a>
-      <a href="#join" class="bg-[#FF6D00] hover:bg-orange-600 text-white px-5 py-2 rounded-full shadow-xl transition duration-300">Join Us</a>
+      <a href="/#about" class="hover:text-[#1E88E5] transition duration-300">About</a>
+      <a href="/#programs" class="hover:text-[#1E88E5] transition duration-300">Programs</a>
+      <a href="/#community" class="hover:text-[#1E88E5] transition duration-300">Community</a>
+      <a href="/#events" class="hover:text-[#1E88E5] transition duration-300">Events</a>
+      <a href="https://chat.whatsapp.com/JPzFKZqQs86Glwe2FnnUGB" class="bg-[#FF6D00] hover:bg-orange-600 text-white px-5 py-2 rounded-full shadow-xl transition duration-300">Join Us</a>
 
       <!-- Theme Toggle -->
       <button id="themeToggle" class="ml-4 text-xl text-gray-700 dark:text-gray-300">
@@ -115,7 +115,7 @@
   <a href="#programs" class="hover:text-[#1E88E5] focus:text-[#1E88E5] transition-colors duration-300 outline-none">Programs</a>
   <a href="#community" class="hover:text-[#1E88E5] focus:text-[#1E88E5] transition-colors duration-300 outline-none">Community</a>
   <a href="#events" class="hover:text-[#1E88E5] focus:text-[#1E88E5] transition-colors duration-300 outline-none">Events</a>
-  <a href="#join"
+  <a href="https://chat.whatsapp.com/JPzFKZqQs86Glwe2FnnUGB"
      class="bg-[#FF6D00] hover:bg-orange-600 focus:bg-orange-600
             text-white px-6 py-3 text-center rounded-full shadow-md
             transition duration-300 outline-none"

@@ -2,7 +2,7 @@
   :root {
   /* Light Theme Scrollbar Colors */
   --scrollbar-track: #f4f4f4;    /* Cloud White background */
-  --scrollbar-thumb: #1e88e5;    /* Electric Blue accent */
+  --scrollbar-thumb: #6A2BA1;    /* Electric Blue accent */
 }
 
 [data-theme='dark'] {

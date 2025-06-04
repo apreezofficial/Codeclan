@@ -14,7 +14,7 @@
         Our core values are rooted in inclusivity, collaboration, mentorship, and practical experience. We believe in learning 
         by doing and making real impact through code. CodeClan is where ambition meets execution.
       </p>
-      <a href="#join" class="inline-block mt-4 px-6 py-3 rounded-full bg-[#1E88E5] hover:bg-blue-700 text-white font-semibold shadow-md transition duration-300">
+      <a href="#join" class="inline-block mt-4 px-6 py-3 rounded-full bg-[#39FF14] hover:bg-green-700 text-white font-semibold shadow-md transition duration-300">
         Join the Movement
       </a>
     </div><!-- Right Visual -->
@@ -27,7 +27,7 @@
     >
   </div>
   <!-- Glow Effect -->
-  <div class="absolute -inset-1 rounded-3xl blur-xl bg-gradient-to-r from-[#39FF14]/40 to-[#1E88E5]/30 opacity-40 dark:opacity-60"></div>
+  <div class="absolute -inset-1 rounded-3xl blur-xl bg-gradient-to-r from-[#6A2BA1]/25 to-[#8A2BA1]/40 opacity-40 dark:opacity-60"></div>
 </div>
 
   </div>

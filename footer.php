@@ -34,7 +34,7 @@
       <a href="https://linkedin.com/in/codeclan" target="_blank" aria-label="LinkedIn" class="hover:text-[#0A66C2] dark:hover:text-[#39FF14] transition">
         <i class="fab fa-linkedin"></i>
       </a>
-      <a href="https://wa.me/234XXXXXXXXXX" target="_blank" aria-label="WhatsApp" class="hover:text-[#25D366] dark:hover:text-[#39FF14] transition">
+      <a href="https://chat.whatsapp.com/JPzFKZqQs86Glwe2FnnUGB" target="_blank" aria-label="WhatsApp" class="hover:text-[#25D366] dark:hover:text-[#39FF14] transition">
         <i class="fab fa-whatsapp"></i>
       </a>
     </div>
@@ -48,7 +48,7 @@
       id="emailInput"
       placeholder="Your email address" 
       required 
-      class="w-full sm:flex-1 rounded-md border border-gray-300 dark:border-gray-700 px-4 py-3 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#39FF14]"
+      class="w-full sm:flex-1 rounded-md border border-gray-300 dark:border-gray-700 px-4 py-3 text-gray-900 dark:bg-black dark:text-white-100 focus:outline-none focus:ring-2 focus:ring-[#39FF14]"
       autocomplete="email"
     />
     <button 

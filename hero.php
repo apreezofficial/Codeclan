@@ -20,13 +20,13 @@
     <div class="flex gap-6 items-center">
       <a
         href="#join"
-        class="inline-block bg-[#1E88E5] hover:bg-[#1565C0] transition rounded-full px-8 py-3 font-semibold shadow-md text-white"
+        class="inline-block bg-[#39FF14] hover:bg-[#39FF70] transition rounded-full px-8 py-3 font-semibold shadow-md text-white"
       >
         Get Started
       </a>
       <a
-        href="#learn-more"
-        class="text-[#1E88E5] hover:underline font-medium cursor-pointer"
+        href="#about"
+        class="text-[#6A2BA1] hover:underline font-medium cursor-pointer"
       >
         Learn More
       </a>
