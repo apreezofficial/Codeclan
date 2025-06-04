@@ -85,34 +85,3 @@ a{
   text-decoration: none;
 }
 </style>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const filterButtons = document.querySelectorAll('.filter-btn');
-  const eventCards = document.querySelectorAll('.event-card');
-
-  function filterEvents(type) {
-    eventCards.forEach(card => {
-      if (type === 'all' || card.classList.contains(type)) {
-        card.style.display = 'block';
-        setTimeout(() => card.style.opacity = 1, 100);
-      } else {
-        card.style.opacity = 0;
-        setTimeout(() => card.style.display = 'none', 200);
-      }
-    });
-
-    filterButtons.forEach(btn => btn.classList.remove('active-filter'));
-    document.querySelector(`[data-filter="${type}"]`).classList.add('active-filter');
-  }
-
-  filterButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const type = btn.dataset.filter;
-      filterEvents(type);
-    });
-  });
-
-  // Initial filter
-  filterEvents('all');
-});
-</script>

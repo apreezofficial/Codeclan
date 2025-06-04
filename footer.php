@@ -48,7 +48,7 @@
       id="emailInput"
       placeholder="Your email address" 
       required 
-      class="w-full sm:flex-1 rounded-md border border-gray-300 dark:border-gray-700 px-4 py-3 text-gray-900 dark:bg-black dark:text-white-100 focus:outline-none focus:ring-2 focus:ring-[#39FF14]"
+      class="w-full sm:flex-1 rounded-md border border-gray-300 dark:border-gray-700 px-4 py-3 text-gray-900 dark:bg-black dark:text-white focus:outline-none focus:ring-2 focus:ring-[#39FF14]"
       autocomplete="email"
     />
     <button 
@@ -60,46 +60,5 @@
   </form>
   <p id="subscribeMessage" class="mt-3 text-xs text-gray-500 dark:text-gray-400 min-h-[1.5rem]"></p>
 </div>
-
-<script>
-  document.getElementById('subscribeForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    const emailInput = document.getElementById('emailInput');
-    const message = document.getElementById('subscribeMessage');
-    const email = emailInput.value.trim();
-
-    if (!email) {
-      message.textContent = 'Please enter your email address.';
-      message.className = 'mt-3 text-xs text-red-500 dark:text-red-400';
-      return;
-    }
-
-    message.textContent = 'Submitting...';
-    message.className = 'mt-3 text-xs text-gray-500 dark:text-gray-400';
-
-    try {
-      const response = await fetch('/ajax/subscribe.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ email })
-      });
-
-      const result = await response.json();
-
-      if (result.status === 'success') {
-        message.textContent = result.message;
-        message.className = 'mt-3 text-xs text-green-600 dark:text-green-400';
-        emailInput.value = '';
-      } else {
-        message.textContent = result.message;
-        message.className = 'mt-3 text-xs text-red-500 dark:text-red-400';
-      }
-    } catch (error) {
-      message.textContent = 'An error occurred. Please try again.';
-      message.className = 'mt-3 text-xs text-red-500 dark:text-red-400';
-    }
-  });
-</script>
-  
-</footer>
+  </footer>
+  <script src="all.ts"></script>

@@ -40,12 +40,50 @@
            dark:bg-[#121212] dark:border-[#39FF14]
            w-full max-w-lg h-96"
   >
-    <span class="text-gray-500 dark:text-green-400 italic">
-      Right side content here (slider, images, etc.).Stil on it though
-    </span>
+<div id="madSlideShow" class="relative w-full h-96 overflow-hidden rounded-2xl shadow-xl">
+  <div class="slides flex transition-transform duration-700 ease-in-out h-full">
+    <!-- Slide 1 -->
+    <div class="slide w-full flex-shrink-0 flex items-center justify-center relative glass-slide active">
+      <img src="/assets/img/ccmcap.png" class="object-cover w-full h-full rounded-2xl" />
+      <div class="overlay absolute inset-0 bg-black/40 backdrop-blur-md rounded-2xl"></div>
+    </div>
+    <!-- Slide 2 -->
+    <div class="slide w-full flex-shrink-0 flex items-center justify-center relative glass-slide">
+      <img src="/assets/img/ccmidcard.png" class="object-cover w-full h-full rounded-2xl" />
+      <div class="overlay absolute inset-0 bg-black/40 backdrop-blur-md rounded-2xl"></div>
+    </div>
+    <!-- Slide 3 -->
+    <div class="slide w-full flex-shrink-0 flex items-center justify-center relative glass-slide">
+      <img src="/assets/img/ccmiphone.png" class="object-cover w-full h-full rounded-2xl" />
+      <div class="overlay absolute inset-0 bg-black/40 backdrop-blur-md rounded-2xl"></div>
+    </div>
+  </div>
+</div>
   </div>
 </section>
+  <style>
+  .glass-slide {
+    position: relative;
+    overflow: hidden;
+  }
 
+  .glass-slide.active .overlay {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(1px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.5s ease;
+  }
+
+  .glass-slide:not(.active) .overlay {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+  }
+
+  html.dark .glass-slide.active .overlay {
+    background: rgba(57, 255, 20, 0.08);
+    border: 1px solid rgba(57, 255, 20, 0.3);
+  }
+</style>
 <style>
   /* Simple fade-in animation for left content */
   #hero > div:first-child > * {
