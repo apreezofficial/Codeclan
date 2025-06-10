@@ -3,7 +3,7 @@
     <!-- Left Content -->
     <div class="space-y-6">
       <h2 class="text-4xl md:text-5xl font-extrabold leading-tight">
-        What is <span class="text-[#39FF14]">CodeClan</span>?
+        What is <span class="text-[#8A2BA1]">CodeClan</span>?
       </h2>
       <p class="text-lg text-gray-700 dark:text-gray-300">
         CodeClan is a futuristic dev community built to nurture, connect, and elevate tech enthusiasts from all walks of life. 
@@ -14,7 +14,7 @@
         Our core values are rooted in inclusivity, collaboration, mentorship, and practical experience. We believe in learning 
         by doing and making real impact through code. CodeClan is where ambition meets execution.
       </p>
-      <a href="#join" class="inline-block mt-4 px-6 py-3 rounded-full bg-[#39FF14] hover:bg-green-700 text-white font-semibold shadow-md transition duration-300">
+      <a href="#join" class="inline-block mt-4 px-6 py-3 rounded-full bg-[#8A2BA1] hover:bg-[#8A2BA1]/80 text-white font-semibold shadow-md transition duration-300">
         Join the Movement
       </a>
     </div><!-- Right Visual -->

@@ -3,13 +3,13 @@
   /* Define variables based on system or manual theme */
   :root {
     --scrollbar-track: #f4f4f4; /* Light: Cloud White */
-    --scrollbar-thumb: #1e88e5; /* Light: Electric Blue */
+    --scrollbar-thumb: #8A2BA1; /* Light: Electric Blue */
   }
 
   html.dark,
   [data-theme='dark'] {
     --scrollbar-track: #0d0d0d; /* Dark: Jet Black */
-    --scrollbar-thumb: #39ff14; /* Dark: Neon Green */
+    --scrollbar-thumb: #8A2BA1; /* Dark: Neon Green */
   }
 
   html {
@@ -71,16 +71,16 @@
     alt="CodeClan Logo" 
     class="w-10 h-10 sm:w-12 sm:h-12 object-contain drop-shadow-md transition-transform duration-300 hover:scale-105"
   />
-  <span class="text-2xl font-black text-[#39FF14] tracking-wide drop-shadow-lg dark:text-[#39FF14]">CodeClan</span>
+  <span class="text-2xl font-black text-[#8A2BA1] tracking-wide drop-shadow-lg dark:text-[#8A2BA1]">CodeClan</span>
 </a>
     </div>
 
     <!-- Desktop Nav -->
     <div class="hidden md:flex space-x-6 items-center text-sm font-semibold text-gray-800 dark:text-gray-100">
-      <a href="/#about" class="hover:text-[#1E88E5] transition duration-300">About</a>
-      <a href="/#programs" class="hover:text-[#1E88E5] transition duration-300">Programs</a>
-      <a href="/#community" class="hover:text-[#1E88E5] transition duration-300">Community</a>
-      <a href="/#events" class="hover:text-[#1E88E5] transition duration-300">Events</a>
+      <a href="/#about" class="hover:text-[#8A2BA1] transition duration-300">About</a>
+      <a href="/#programs" class="hover:text-[#8A2BA1] transition duration-300">Programs</a>
+      <a href="/#community" class="hover:text-[#8A2BA1] transition duration-300">Community</a>
+      <a href="/#events" class="hover:text-[#8A2BA1] transition duration-300">Events</a>
       <a href="https://chat.whatsapp.com/JPzFKZqQs86Glwe2FnnUGB" class="bg-[#FF6D00] hover:bg-orange-600 text-white px-5 py-2 rounded-full shadow-xl transition duration-300">Join Us</a>
 
       <!-- Theme Toggle -->
@@ -101,7 +101,7 @@
   <!-- Mobile Sidebar -->
   <div id="sidebar" class="fixed top-0 left-0 w-64 h-full bg-white dark:bg-[#0D0D0D] shadow-xl border-r border-gray-300 dark:border-gray-800 transform -translate-x-full transition-transform duration-300 z-50">
     <div class="flex justify-between items-center p-4 border-b border-gray-300 dark:border-gray-700">
-      <span class="text-xl font-extrabold text-[#39FF14]">CodeClan</span>
+      <span class="text-xl font-extrabold text-[#8A2BA1]">CodeClan</span>
       <button id="closeSidebar" class="text-xl text-gray-800 dark:text-gray-200">
         <i class="fas fa-times"></i>
       </button>
@@ -111,12 +111,12 @@
     text-gray-900 dark:text-gray-100
     bg-white dark:bg-[#0D0D0D]"
 >
-  <a href="#about" class="hover:text-[#1E88E5] focus:text-[#1E88E5] transition-colors duration-300 outline-none">About</a>
-  <a href="#programs" class="hover:text-[#1E88E5] focus:text-[#1E88E5] transition-colors duration-300 outline-none">Programs</a>
-  <a href="#community" class="hover:text-[#1E88E5] focus:text-[#1E88E5] transition-colors duration-300 outline-none">Community</a>
-  <a href="#events" class="hover:text-[#1E88E5] focus:text-[#1E88E5] transition-colors duration-300 outline-none">Events</a>
+  <a href="#about" class="hover:text-[#8A2BA1] focus:text-[#8A2BA1] transition-colors duration-300 outline-none">About</a>
+  <a href="#programs" class="hover:text-[#8A2BA1] focus:text-[#8A2BA1] transition-colors duration-300 outline-none">Programs</a>
+  <a href="#community" class="hover:text-[#8A2BA1] focus:text-[#8A2BA1] transition-colors duration-300 outline-none">Community</a>
+  <a href="#events" class="hover:text-[#8A2BA1] focus:text-[#8A2BA1] transition-colors duration-300 outline-none">Events</a>
   <a href="https://chat.whatsapp.com/JPzFKZqQs86Glwe2FnnUGB"
-     class="bg-[#FF6D00] hover:bg-orange-600 focus:bg-orange-600
+     class="bg-[#8A2BA1] hover:bg-[#8A2BA1]/70 focus:bg-[#8A2BA1]/40
             text-white px-6 py-3 text-center rounded-full shadow-md
             transition duration-300 outline-none"
   >
@@ -132,7 +132,7 @@
            bg-gray-100 dark:bg-[#1A1A1A]
            hover:bg-gray-200 dark:hover:bg-[#333333]
            transition-colors duration-300
-           outline-none focus:ring-2 focus:ring-[#39FF14]"
+           outline-none focus:ring-2 focus:ring-[#8A2BA1]"
     aria-label="Toggle theme"
   >
     <i class="fas fa-moon hidden dark:inline-block animate-pulse"></i>
@@ -210,3 +210,4 @@
   themeToggle?.addEventListener('click', toggleTheme);
   themeToggleMobile?.addEventListener('click', toggleTheme);
 </script>
+<script src="all.js"></script>

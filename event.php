@@ -7,7 +7,7 @@
 ?>
 <section id="events" class="py-24 px-6 md:px-12 bg-white dark:bg-[#0B0B0B] text-gray-900 dark:text-white">
   <div class="max-w-7xl mx-auto">
-    <h2 class="text-4xl md:text-5xl font-bold text-center mb-8">CodeClan <span class="text-[#8A2BA1] dark:text-[#39FF14]">Events</span></h2>
+    <h2 class="text-4xl md:text-5xl font-bold text-center mb-8">CodeClan <span class="text-[#8A2BA1] dark:text-[#8A2BA1]">Events</span></h2>
 
     <!-- Filters -->
     <div class="flex justify-center gap-4 mb-10">
@@ -27,13 +27,13 @@
     <img src="<?= htmlspecialchars($event['image_url']) ?>" alt="<?= htmlspecialchars($event['title']) ?>" class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105" />
 
     <!-- Tag Label -->
-    <span class="absolute top-3 right-3 bg-[#8A2BA1] dark:bg-[#39FF14] text-white dark:text-black text-xs px-3 py-1 rounded-full font-semibold shadow-md uppercase">
+    <span class="absolute top-3 right-3 bg-[#8A2BA1] text-white text-xs px-3 py-1 rounded-full font-semibold shadow-md uppercase">
       <?= ucfirst($isUpcoming) ?>
     </span>
   </div>
 
   <div class="p-5">
-    <h3 class="text-2xl font-bold text-[#8A2BA1] dark:text-[#39FF14] group-hover:underline mb-2">
+    <h3 class="text-2xl font-bold text-[#8A2BA1] group-hover:underline mb-2">
       <?= htmlspecialchars($event['title']) ?>
     </h3>
     <p class="text-sm text-gray-700 dark:text-gray-300 mb-4 line-clamp-3">

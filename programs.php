@@ -9,7 +9,7 @@
   <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
     <!-- Bootcamps -->
     <div class="bg-white/40 dark:bg-white/10 backdrop-blur-lg p-6 rounded-2xl shadow-md hover:scale-[1.03] hover:shadow-xl transition-all duration-300 border border-white/20 dark:border-gray-800">
-      <div class="text-[#39FF14] text-4xl mb-4">
+      <div class="text-[#8A2BA1] text-4xl mb-4">
         <i class="fas fa-laptop-code"></i>
       </div>
       <h3 class="text-2xl font-semibold mb-2">Tech Bootcamps</h3>

@@ -7,7 +7,7 @@
 
     <!-- Logo + Copyright -->
     <div class="text-center md:text-left">
-      <a href="/" class="text-2xl font-extrabold text-[#39FF14] drop-shadow-lg tracking-wide mb-2 inline-block">
+      <a href="/" class="text-2xl font-extrabold text-[#8A2BA1] drop-shadow-lg tracking-wide mb-2 inline-block">
         CodeClan
       </a>
       <p class="text-sm">
@@ -17,10 +17,10 @@
 
     <!-- Quick Links -->
     <nav class="flex space-x-6 text-sm font-medium">
-      <a href="/#community" class="hover:text-[#1E88E5] dark:hover:text-[#39FF14] transition">Community</a>
-      <a href="/#events" class="hover:text-[#1E88E5] dark:hover:text-[#39FF14] transition">Events</a>
-      <a href="/#about" class="hover:text-[#1E88E5] dark:hover:text-[#39FF14] transition">About</a>
-      <a href="/#contact" class="hover:text-[#1E88E5] dark:hover:text-[#39FF14] transition">Contact</a>
+      <a href="/#community" class="hover:text-[#8A2BA1] dark:hover:text-[#8A2BA1] transition">Community</a>
+      <a href="/#events" class="hover:text-[#8A2BA1] dark:hover:text-[#8A2BA1] transition">Events</a>
+      <a href="/#about" class="hover:text-[#8A2BA1] dark:hover:text-[#8A2BA1] transition">About</a>
+      <a href="/#contact" class="hover:text-[#8A2BA1] dark:hover:text-[#8A2BA1] transition">Contact</a>
     </nav>
 
     <!-- Social Icons -->
@@ -28,13 +28,13 @@
       <a href="https://x.com/codeclan" target="_blank" aria-label="Twitter" class="hover:text-[#1DA1F2] dark:hover:text-[#39FF14] transition">
         <i class="fab fa-twitter"></i>
       </a>
-      <a href="https://github.com/codeclan" target="_blank" aria-label="GitHub" class="hover:text-gray-900 dark:hover:text-[#39FF14] transition">
+      <a href="https://github.com/codeclan" target="_blank" aria-label="GitHub" class="hover:text-gray-900 dark:hover:text-[#8A2BA1] transition">
         <i class="fab fa-github"></i>
       </a>
-      <a href="https://linkedin.com/in/codeclan" target="_blank" aria-label="LinkedIn" class="hover:text-[#0A66C2] dark:hover:text-[#39FF14] transition">
+      <a href="https://linkedin.com/in/codeclan" target="_blank" aria-label="LinkedIn" class="hover:text-[#8A2BA1] dark:hover:text-[#39FF14] transition">
         <i class="fab fa-linkedin"></i>
       </a>
-      <a href="https://chat.whatsapp.com/JPzFKZqQs86Glwe2FnnUGB" target="_blank" aria-label="WhatsApp" class="hover:text-[#25D366] dark:hover:text-[#39FF14] transition">
+      <a href="https://chat.whatsapp.com/JPzFKZqQs86Glwe2FnnUGB" target="_blank" aria-label="WhatsApp" class="hover:text-[#8A2BA1] dark:hover:text-[#8A2BA1] transition">
         <i class="fab fa-whatsapp"></i>
       </a>
     </div>
@@ -53,7 +53,7 @@
     />
     <button 
       type="submit" 
-      class="bg-[#39FF14] text-black font-semibold rounded-md px-6 py-3 hover:bg-[#2bcf11] transition"
+      class="bg-[#8A2BA1] text-black font-semibold rounded-md px-6 py-3 hover:bg-[#8A2BA1]/70 transition"
     >
       Subscribe
     </button>
@@ -61,4 +61,4 @@
   <p id="subscribeMessage" class="mt-3 text-xs text-gray-500 dark:text-gray-400 min-h-[1.5rem]"></p>
 </div>
   </footer>
-  <script src="all.ts"></script>
+  <script src="all.js"></script>

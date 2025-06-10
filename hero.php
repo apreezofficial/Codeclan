@@ -20,13 +20,13 @@
     <div class="flex gap-6 items-center">
       <a
         href="#join"
-        class="inline-block bg-[#39FF14] hover:bg-[#39FF70] transition rounded-full px-8 py-3 font-semibold shadow-md text-white"
+        class="inline-block bg-[#8A2BA1] hover:bg-[#8A2BA1]/80 transition rounded-full px-8 py-3 font-semibold shadow-md text-white"
       >
         Get Started
       </a>
       <a
         href="#about"
-        class="text-[#6A2BA1] hover:underline font-medium cursor-pointer"
+        class="text-[#8A2BA1] hover:underline font-medium cursor-pointer dark:text-[#8A2BA1]"
       >
         Learn More
       </a>
@@ -36,54 +36,136 @@
   <!-- Right Content Placeholder -->
   <div
     class="flex-1 hidden md:flex justify-center items-center
-           bg-gray-100 rounded-2xl border-2 border-[#1E88E5]
-           dark:bg-[#121212] dark:border-[#39FF14]
+           bg-gray-100 rounded-2xl border-4 border-[#8A2BA1]
+           dark:bg-[#121212] dark:border-[#8A2BA1]
            w-full max-w-lg h-96"
-  >
-<div id="madSlideShow" class="relative w-full h-96 overflow-hidden rounded-2xl shadow-xl">
-  <div class="slides flex transition-transform duration-700 ease-in-out h-full">
+  ><div id="simpleSlider" class="relative w-full h-96 overflow-hidden rounded-2xl shadow-xl bg-gray-100">
+  <!-- Slides Container -->
+  <div class="slides-container flex h-full transition-transform duration-500 ease-in-out">
     <!-- Slide 1 -->
-    <div class="slide w-full flex-shrink-0 flex items-center justify-center relative glass-slide active">
-      <img src="/assets/img/ccmcap.png" class="object-cover w-full h-full rounded-2xl" />
-      <div class="overlay absolute inset-0 bg-black/40 backdrop-blur-md rounded-2xl"></div>
+    <div class="slide w-full flex-shrink-0">
+      <img src="/assets/img/ccmcap.png" class="w-full h-full object-cover rounded-2xl" />
     </div>
     <!-- Slide 2 -->
-    <div class="slide w-full flex-shrink-0 flex items-center justify-center relative glass-slide">
-      <img src="/assets/img/ccmidcard.png" class="object-cover w-full h-full rounded-2xl" />
-      <div class="overlay absolute inset-0 bg-black/40 backdrop-blur-md rounded-2xl"></div>
+    <div class="slide w-full flex-shrink-0">
+      <img src="/assets/img/ccmidcard.png" class="w-full h-full object-cover rounded-2xl" />
     </div>
     <!-- Slide 3 -->
-    <div class="slide w-full flex-shrink-0 flex items-center justify-center relative glass-slide">
-      <img src="/assets/img/ccmiphone.png" class="object-cover w-full h-full rounded-2xl" />
-      <div class="overlay absolute inset-0 bg-black/40 backdrop-blur-md rounded-2xl"></div>
+    <div class="slide w-full flex-shrink-0">
+      <img src="/assets/img/ccmiphone.png" class="w-full h-full object-cover rounded-2xl" />
     </div>
   </div>
-</div>
+
+  <!-- Navigation Arrows -->
+  <button class="nav-arrow absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full hover:bg-black/50 transition">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+    </svg>
+  </button>
+  <button class="nav-arrow absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white p-2 rounded-full hover:bg-black/50 transition">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+    </svg>
+  </button>
+
+  <!-- Indicators -->
+  <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+    <span class="indicator-dot w-2 h-2 rounded-full bg-white/80 cursor-pointer"></span>
+    <span class="indicator-dot w-2 h-2 rounded-full bg-white/50 cursor-pointer"></span>
+    <span class="indicator-dot w-2 h-2 rounded-full bg-white/50 cursor-pointer"></span>
   </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const slider = document.getElementById('simpleSlider');
+    const slidesContainer = slider.querySelector('.slides-container');
+    const slides = slider.querySelectorAll('.slide');
+    const prevBtn = slider.querySelectorAll('.nav-arrow')[0];
+    const nextBtn = slider.querySelectorAll('.nav-arrow')[1];
+    const dots = slider.querySelectorAll('.indicator-dot');
+    
+    let currentIndex = 0;
+    let autoSlideInterval;
+
+    // Initialize slider
+    function initSlider() {
+      updateSlider();
+      startAutoSlide();
+      
+      // Event listeners
+      prevBtn.addEventListener('click', goToPrevSlide);
+      nextBtn.addEventListener('click', goToNextSlide);
+      
+      dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => goToSlide(index));
+      });
+      
+      // Touch events
+      let touchStartX = 0;
+      let touchEndX = 0;
+      
+      slidesContainer.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].clientX;
+        clearInterval(autoSlideInterval);
+      }, {passive: true});
+      
+      slidesContainer.addEventListener('touchend', e => {
+        touchEndX = e.changedTouches[0].clientX;
+        handleSwipe();
+        startAutoSlide();
+      }, {passive: true});
+    }
+
+    function handleSwipe() {
+      if (touchEndX < touchStartX - 50) goToNextSlide();
+      if (touchEndX > touchStartX + 50) goToPrevSlide();
+    }
+
+    function startAutoSlide() {
+      autoSlideInterval = setInterval(goToNextSlide, 5000);
+    }
+
+    function updateSlider() {
+      slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`;
+      
+      // Update dots
+      dots.forEach((dot, index) => {
+        dot.classList.toggle('bg-white/80', index === currentIndex);
+        dot.classList.toggle('bg-white/50', index !== currentIndex);
+      });
+    }
+
+    function goToSlide(index) {
+      currentIndex = index;
+      updateSlider();
+      resetAutoSlide();
+    }
+
+    function goToPrevSlide() {
+      currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+      updateSlider();
+      resetAutoSlide();
+    }
+
+    function goToNextSlide() {
+      currentIndex = (currentIndex + 1) % slides.length;
+      updateSlider();
+      resetAutoSlide();
+    }
+
+    function resetAutoSlide() {
+      clearInterval(autoSlideInterval);
+      startAutoSlide();
+    }
+
+    // Initialize the slider
+    initSlider();
+  });
+</script>
+</div>
 </section>
-  <style>
-  .glass-slide {
-    position: relative;
-    overflow: hidden;
-  }
 
-  .glass-slide.active .overlay {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(1px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: all 0.5s ease;
-  }
-
-  .glass-slide:not(.active) .overlay {
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
-  }
-
-  html.dark .glass-slide.active .overlay {
-    background: rgba(57, 255, 20, 0.08);
-    border: 1px solid rgba(57, 255, 20, 0.3);
-  }
-</style>
 <style>
   /* Simple fade-in animation for left content */
   #hero > div:first-child > * {
