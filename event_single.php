@@ -1,7 +1,7 @@
 <?php
 // DB connection
 require 'conn.php';
-require 'inc/parsedown.php';
+require 'Inc/parsedown.php';
 
 $id = $_GET['id'] ?? null;
 
