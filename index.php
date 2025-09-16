@@ -6,7 +6,7 @@ include 'conn.php';?>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="google-site-verification" content="mpfvExLjgj2MPsncOhhRIMSpfFm-zw9WJNEGflQNONU" />
+<meta name="google-site-verification" content="OdT00ouOO0ocrWZx4zNHdyPkRTZuu9atrHnR3xlbQAQ" />
 <!-- Primary Meta Tags -->
 <title>CodeClan - Nigeria's Leading Code Community</title>
 <meta name="title" content="CodeClan - Home of Coding Titans in Nigeria" />
