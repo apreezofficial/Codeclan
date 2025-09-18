@@ -4,7 +4,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 session_start();
-require_once "../conn.php";
+require_once "../conn.php"; // make sure $pdo is created inside conn.php
 
 function getEnvVar($key) {
     return $_ENV[$key] ?? getenv($key);
@@ -14,9 +14,6 @@ $clientId     = getEnvVar('GOOGLE_CLIENT_ID');
 $clientSecret = getEnvVar('GOOGLE_CLIENT_SECRET');
 $redirectUri  = getEnvVar('GOOGLE_REDIRECT_URI');
 
-/**
- * Handle callback
- */
 if (isset($_GET['code'])) {
     $code = $_GET['code'];
 
@@ -42,19 +39,30 @@ if (isset($_GET['code'])) {
         $user = json_decode($userInfo, true);
 
         if ($user && isset($user['id'])) {
-            // Insert or update user in DB
-            $stmt = $pdo->prepare("INSERT INTO users (google_id, name, email, picture) 
-                                   VALUES (:google_id, :name, :email, :picture)
-                                   ON DUPLICATE KEY UPDATE 
-                                     name = VALUES(name), 
-                                     email = VALUES(email), 
-                                     picture = VALUES(picture)");
-            $stmt->execute([
-                ":google_id" => $user['id'],
-                ":name"      => $user['name'] ?? '',
-                ":email"     => $user['email'] ?? '',
-                ":picture"   => $user['picture'] ?? ''
-            ]);
+            try {
+                $stmt = $pdo->prepare("INSERT INTO users (google_id, name, email, picture) 
+                                       VALUES (:google_id, :name, :email, :picture)
+                                       ON DUPLICATE KEY UPDATE 
+                                         name = VALUES(name), 
+                                         email = VALUES(email), 
+                                         picture = VALUES(picture)");
+
+                $stmt->execute([
+                    ":google_id" => $user['id'],
+                    ":name"      => $user['name'] ?? '',
+                    ":email"     => $user['email'] ?? '',
+                    ":picture"   => $user['picture'] ?? ''
+                ]);
+
+                if ($stmt->rowCount() > 0) {
+                    error_log("✅ User inserted/updated successfully: " . $user['email']);
+                } else {
+                    error_log("⚠️ No rows affected. Possibly duplicate with no changes.");
+                }
+
+            } catch (PDOException $e) {
+                die("❌ DB Error: " . $e->getMessage());
+            }
 
             // Store cookie for 30 days
             setcookie("user", json_encode($user), time() + (86400 * 30), "/");
@@ -62,21 +70,19 @@ if (isset($_GET['code'])) {
             // Redirect to dashboard
             header("Location: /dashboard/");
             exit;
+        } else {
+            die("❌ No user info received from Google.");
         }
+    } else {
+        die("❌ Failed to get access token. Response: " . $tokenData);
     }
 }
 
-/**
- * If already logged in via cookie
- */
 if (isset($_COOKIE['user'])) {
     header("Location: /dashboard/");
     exit;
 }
 
-/**
- * Login button page
- */
 $googleAuthUrl = "https://accounts.google.com/o/oauth2/v2/auth?" . http_build_query([
     "client_id"     => $clientId,
     "redirect_uri"  => $redirectUri,
