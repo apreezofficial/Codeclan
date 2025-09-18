@@ -4,7 +4,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 session_start();
-require_once __DIR__ . "/conn.php";
+require_once "../conn.php";
 
 function getEnvVar($key) {
     return $_ENV[$key] ?? getenv($key);
