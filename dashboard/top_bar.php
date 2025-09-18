@@ -1,6 +1,25 @@
 <?php
-//will include authentication later
-// include "../checks.php";
+session_start();
+require_once "../conn.php";
+
+// Check user authentication via cookie
+if (!isset($_COOKIE['user'])) {
+    header("Location: ../auth");
+    exit;
+}
+
+$user = json_decode($_COOKIE['user'], true);
+
+$stmt = $pdo->prepare("SELECT * FROM users WHERE google_id = :gid LIMIT 1");
+$stmt->execute([":gid" => $user['id'] ?? '']);
+$dbUser = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// If user not found in DB, force logout
+if (!$dbUser) {
+    setcookie("user", "", time() - 3600, "/");
+    header("Location: ../auth");
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en" class="transition-colors duration-300">
@@ -10,7 +29,6 @@
   <title>Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    // Dark mode toggle with localStorage
     if (localStorage.theme === 'dark' || 
         (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       document.documentElement.classList.add('dark')
@@ -52,12 +70,21 @@
     <!-- Profile Dropdown -->
     <div class="relative">
       <button id="profileBtn" class="flex items-center focus:outline-none">
-        <img src="https://i.pravatar.cc/40" alt="Profile" class="w-10 h-10 rounded-full border-2 border-white">
+        <img src="<?php echo htmlspecialchars($dbUser['picture']); ?>" 
+             alt="Profile" class="w-10 h-10 rounded-full border-2 border-white">
       </button>
-      <div id="profileMenu" class="hidden absolute right-0 mt-3 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-2 z-50">
+      <div id="profileMenu" class="hidden absolute right-0 mt-3 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-2 z-50">
+        <div class="px-4 py-2 border-b dark:border-gray-700">
+          <p class="text-sm font-semibold text-gray-800 dark:text-gray-100">
+            <?php echo htmlspecialchars($dbUser['name']); ?>
+          </p>
+          <p class="text-xs text-gray-600 dark:text-gray-400">
+            <?php echo htmlspecialchars($dbUser['email']); ?>
+          </p>
+        </div>
         <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">Profile</a>
         <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">Settings</a>
-        <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">Logout</a>
+        <a href="/logout.php" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700">Logout</a>
       </div>
     </div>
   </div>
