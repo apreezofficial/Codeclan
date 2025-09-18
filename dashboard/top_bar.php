@@ -2,7 +2,6 @@
 session_start();
 require_once "../conn.php";
 
-// Check user authentication via cookie
 if (!isset($_COOKIE['user'])) {
     header("Location: ../auth");
     exit;
@@ -14,7 +13,6 @@ $stmt = $pdo->prepare("SELECT * FROM users WHERE google_id = :gid LIMIT 1");
 $stmt->execute([":gid" => $user['id'] ?? '']);
 $dbUser = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// If user not found in DB, force logout
 if (!$dbUser) {
     setcookie("user", "", time() - 3600, "/");
     header("Location: ../auth");
@@ -32,23 +30,17 @@ if (!$dbUser) {
     if (localStorage.theme === 'dark' || 
         (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
     }
   </script>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
 
-<!-- Navbar -->
 <nav class="flex items-center justify-between px-6 py-3 bg-purple-600 dark:bg-purple-800 shadow-lg">
-  
-  <!-- Left: Logo -->
   <div class="flex items-center space-x-3">
     <img src="/assets/img/codeclanlogo3d.png" alt="Logo" class="w-10 h-10 rounded-full">
     <span class="text-xl font-bold text-white">CodeClan</span>
   </div>
 
-  <!-- Center: Nav links -->
   <div class="hidden md:flex space-x-6 text-white">
     <a href="#" class="hover:text-yellow-300">Leaderboard</a>
     <a href="#" class="hover:text-yellow-300">Games</a>
@@ -56,18 +48,14 @@ if (!$dbUser) {
     <a href="#" class="hover:text-yellow-300">Notifications</a>
   </div>
 
-  <!-- Right: Theme toggle + Profile -->
   <div class="flex items-center space-x-4">
-    <!-- Dark Mode Toggle -->
     <button id="themeToggle" class="p-2 rounded-lg bg-white/20 hover:bg-white/30 dark:bg-gray-700 dark:hover:bg-gray-600">
       <svg id="themeIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <!-- default: sun -->
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
           d="M12 3v1m0 16v1m8.66-13.66l-.71.71M4.05 19.95l-.71-.71M21 12h-1M4 12H3m16.95 7.95l-.71-.71M4.05 4.05l-.71.71M12 8a4 4 0 100 8 4 4 0 000-8z"/>
       </svg>
     </button>
 
-    <!-- Profile Dropdown -->
     <div class="relative">
       <button id="profileBtn" class="flex items-center focus:outline-none">
         <img src="<?php echo htmlspecialchars($dbUser['picture']); ?>" 
@@ -91,30 +79,16 @@ if (!$dbUser) {
 </nav>
 
 <script>
-  // Theme toggle
-  const themeToggle = document.getElementById('themeToggle');
-  const themeIcon = document.getElementById('themeIcon');
-  themeToggle.addEventListener('click', () => {
+  document.getElementById('themeToggle').addEventListener('click', () => {
     document.documentElement.classList.toggle('dark');
-    if (document.documentElement.classList.contains('dark')) {
-      localStorage.setItem('theme', 'dark');
-    } else {
-      localStorage.setItem('theme', 'light');
-    }
+    localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
   });
 
-  // Profile dropdown toggle
   const profileBtn = document.getElementById('profileBtn');
   const profileMenu = document.getElementById('profileMenu');
-  profileBtn.addEventListener('click', () => {
-    profileMenu.classList.toggle('hidden');
-  });
-
-  // Close dropdown when clicking outside
-  document.addEventListener('click', (e) => {
-    if (!profileBtn.contains(e.target) && !profileMenu.contains(e.target)) {
-      profileMenu.classList.add('hidden');
-    }
+  profileBtn.addEventListener('click', () => profileMenu.classList.toggle('hidden'));
+  document.addEventListener('click', e => {
+    if (!profileBtn.contains(e.target) && !profileMenu.contains(e.target)) profileMenu.classList.add('hidden');
   });
 </script>
 
