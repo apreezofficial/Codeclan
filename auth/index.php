@@ -1,13 +1,15 @@
 <?php
-session_start();
-require_once "/conn.php";
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-/**
- * Load .env for Google credentials
- */
+session_start();
+require_once __DIR__ . "/conn.php";
+
 function getEnvVar($key) {
-    return getenv($key) ?: ($_ENV[$key] ?? null);
+    return $_ENV[$key] ?? getenv($key);
 }
+
 $clientId     = getEnvVar('GOOGLE_CLIENT_ID');
 $clientSecret = getEnvVar('GOOGLE_CLIENT_SECRET');
 $redirectUri  = getEnvVar('GOOGLE_REDIRECT_URI');
@@ -43,7 +45,10 @@ if (isset($_GET['code'])) {
             // Insert or update user in DB
             $stmt = $pdo->prepare("INSERT INTO users (google_id, name, email, picture) 
                                    VALUES (:google_id, :name, :email, :picture)
-                                   ON DUPLICATE KEY UPDATE name = :name, email = :email, picture = :picture");
+                                   ON DUPLICATE KEY UPDATE 
+                                     name = VALUES(name), 
+                                     email = VALUES(email), 
+                                     picture = VALUES(picture)");
             $stmt->execute([
                 ":google_id" => $user['id'],
                 ":name"      => $user['name'] ?? '',
