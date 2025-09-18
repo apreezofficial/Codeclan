@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once "../conn.php"; // must define $pdo (PDO connection)
+require_once "../conn.php";
 
 // Load env vars
 function getEnvVar($key) {
@@ -16,7 +16,7 @@ try {
     if (isset($_GET['code'])) {
         $code = $_GET['code'];
 
-        // 1. Exchange authorization code for access token
+        // Exchange authorization code for access token
         $token_url = 'https://oauth2.googleapis.com/token';
         $post_data = [
             'code' => $code,
@@ -51,7 +51,7 @@ try {
             throw new Exception('No access token received from Google');
         }
 
-        // 2. Get user info from Google
+        // Get user info from Google
         $userinfo_url = 'https://www.googleapis.com/oauth2/v2/userinfo?access_token=' . $access_token;
         $ch = curl_init($userinfo_url);
         curl_setopt_array($ch, [
@@ -80,7 +80,7 @@ try {
             throw new Exception('Missing Google user ID');
         }
 
-        // 3. Database operations
+        // Database operations
         $stmt = $pdo->prepare("SELECT id FROM users WHERE google_id = :google_id OR email = :email");
         $stmt->execute([':google_id' => $google_id, ':email' => $email]);
         $user_id = $stmt->fetchColumn();
@@ -106,7 +106,7 @@ try {
             $user_id = $pdo->lastInsertId();
         }
 
-        // 4. Create session + cookie
+        // Create session + cookie
         $_SESSION['user_id']     = $user_id;
         $_SESSION['user_name']   = $name;
         $_SESSION['user_avatar'] = $picture;
@@ -114,7 +114,7 @@ try {
 
         setcookie('user_id', $user_id, time() + (86400 * 30), "/", "", false, true);
 
-        header("Location: /dashboard/");
+        header("Location: ../dashboard/");
         exit;
     }
 
