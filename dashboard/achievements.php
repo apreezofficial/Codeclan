@@ -1,8 +1,10 @@
 <?php
 include 'top_bar.php';
+
 $stmt = $pdo->prepare("
     SELECT a.id, a.name, a.description, a.icon, a.single,
            ua.unlocked_at,
+           u.id AS owner_id,
            u.name AS owner_name,
            u.picture AS owner_picture,
            ua_global.unlocked_at AS owner_unlocked_at
@@ -31,7 +33,8 @@ $achievements = $stmt->fetchAll(PDO::FETCH_ASSOC);
       theme: {
         extend: {
           colors: {
-            brand: "#6B21A8", // purple vibe
+            brand: "#6B21A8",
+            brandLight: "#9333EA"
           },
         },
       },
@@ -40,58 +43,67 @@ $achievements = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100">
 
-<div class="max-w-5xl mx-auto px-4 py-8">
+<div class="max-w-6xl mx-auto px-4 py-10">
   <!-- Header -->
-  <div class="flex items-center justify-between mb-8">
-    <h1 class="text-3xl font-bold flex items-center gap-2">
-      🏅 Achievements
+  <div class="flex items-center justify-between mb-10">
+    <h1 class="text-4xl font-extrabold flex items-center gap-3 text-brand dark:text-brandLight">
+      <i data-lucide="trophy" class="w-8 h-8"></i> Achievements
     </h1>
   </div>
 
   <!-- Achievements Grid -->
-  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+  <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
     <?php foreach ($achievements as $ach): ?>
       <?php $unlocked = !empty($ach['unlocked_at']); ?>
-      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow p-6 flex flex-col items-center text-center 
-                  <?= $unlocked ? '' : 'opacity-50' ?>">
-        
-        <!-- Badge Icon -->
-        <img src="<?= htmlspecialchars($ach['icon']) ?>" alt="Badge" 
-             class="w-16 h-16 mb-4 <?= $unlocked ? '' : 'grayscale' ?>">
-        
-        <!-- Title -->
-        <h2 class="text-lg font-semibold mb-1">
-          <?= htmlspecialchars($ach['name']) ?>
-        </h2>
-
-        <!-- Description -->
-        <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
-          <?= htmlspecialchars($ach['description']) ?>
-        </p>
-
-        <!-- Unlock Status -->
-        <?php if ($unlocked): ?>
-          <span class="px-3 py-1 bg-brand text-white rounded-full text-xs font-medium">
-            ✅ Unlocked on <?= date("M d, Y", strtotime($ach['unlocked_at'])) ?>
-          </span>
-        <?php elseif ($ach['single'] && $ach['owner_name']): ?>
-          <div class="flex items-center gap-2 mt-2 text-xs text-gray-600 dark:text-gray-400">
-            <img src="<?= htmlspecialchars($ach['owner_picture']) ?>" 
-                 class="w-6 h-6 rounded-full border">
-            <div class="text-left">
-              <p>Claimed by <strong><?= htmlspecialchars($ach['owner_name']) ?></strong></p>
-              <p class="text-[11px]">on <?= date("M d, Y", strtotime($ach['owner_unlocked_at'])) ?></p>
-            </div>
+      <div class="relative group rounded-2xl shadow-xl overflow-hidden bg-gradient-to-br from-purple-500/10 to-purple-700/10 dark:from-purple-600/20 dark:to-purple-800/20 hover:scale-[1.02] hover:shadow-2xl transition-all duration-300">
+        <div class="p-6 flex flex-col items-center text-center">
+          
+          <!-- Badge Icon -->
+          <div class="w-20 h-20 mb-4 flex items-center justify-center bg-gradient-to-tr from-brand to-brandLight rounded-full shadow-lg group-hover:scale-105 transition-transform">
+            <img src="<?= htmlspecialchars($ach['icon']) ?>" alt="Badge" 
+                 class="w-12 h-12 <?= $unlocked ? '' : 'grayscale opacity-70' ?>">
           </div>
-        <?php else: ?>
-          <span class="px-3 py-1 bg-gray-300 dark:bg-gray-700 rounded-full text-xs font-medium">
-            🔒 Locked
-          </span>
-        <?php endif; ?>
+          
+          <!-- Title -->
+          <h2 class="text-lg font-bold mb-1 text-gray-900 dark:text-white">
+            <?= htmlspecialchars($ach['name']) ?>
+          </h2>
+
+          <!-- Description -->
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            <?= htmlspecialchars($ach['description']) ?>
+          </p>
+
+          <!-- Status -->
+          <?php if ($unlocked): ?>
+            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-500 text-white">
+              🏆 Claimed by You on <?= date("M d, Y", strtotime($ach['unlocked_at'])) ?>
+            </span>
+          <?php elseif ($ach['single'] && $ach['owner_name']): ?>
+            <div class="flex items-center gap-2 mt-3 p-2 rounded-lg bg-gray-100 dark:bg-gray-700 w-full">
+              <img src="<?= htmlspecialchars($ach['owner_picture']) ?>" 
+                   class="w-8 h-8 rounded-full border shadow">
+              <div class="text-left text-xs">
+                <p class="font-medium text-gray-800 dark:text-gray-200">
+                  Claimed by <?= htmlspecialchars($ach['owner_name']) ?>
+                </p>
+                <p class="text-[11px] text-gray-600 dark:text-gray-400">
+                  <?= date("M d, Y", strtotime($ach['owner_unlocked_at'])) ?>
+                </p>
+              </div>
+            </div>
+          <?php else: ?>
+            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-gray-300 dark:bg-gray-600">
+              🔒 Locked
+            </span>
+          <?php endif; ?>
+        </div>
       </div>
     <?php endforeach; ?>
   </div>
 </div>
 
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>lucide.createIcons();</script>
 </body>
 </html>
