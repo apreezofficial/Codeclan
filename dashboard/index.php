@@ -32,9 +32,6 @@ $stats = $stmt->fetch(PDO::FETCH_ASSOC) ?: [
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
 
-  <!-- 🔝 Top navigation -->
-  <?php include "top_bar.php"; ?>
-
   <!-- 📊 Dashboard -->
   <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
