@@ -2,7 +2,7 @@
 session_start();
 include '../top_bar.php'; 
 $game_id = 1;
-
+error_reporting(1);
 // Handle backend AJAX requests
 if (isset($_GET['action'])) {
     header("Content-Type: application/json");
