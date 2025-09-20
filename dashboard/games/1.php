@@ -1,64 +1,89 @@
 <?php
 session_start();
-include '../top_bar.php'; 
+
+include '../top_bar.php';
+
+$user_id = $dbUser['id'] ?? null; 
 $game_id = 1;
-error_reporting(1);
+
 // Handle backend AJAX requests
 if (isset($_GET['action'])) {
     header("Content-Type: application/json");
 
-    if ($_GET['action'] === 'get_question') {
-        $difficulty = $_GET['difficulty'] ?? 'medium';
-        $prompt = "Generate a {$difficulty} coding multiple-choice question with 4 options and specify the correct one in JSON format with keys: question, options, answer.";
+    try {
+        if ($_GET['action'] === 'get_question') {
+            $difficulty = $_GET['difficulty'] ?? 'medium';
+            $prompt = "Generate a {$difficulty} coding multiple-choice question with 4 options and specify the correct one in JSON format with keys: question, options, answer.";
 
-        $url = "https://text.pollinations.ai/" . urlencode($prompt);
-        $response = @file_get_contents($url);
-        $data = json_decode($response, true);
+            // FIX: Removed the space after 'ai/'
+            $url = "https://text.pollinations.ai/" . urlencode($prompt);
+            $response = @file_get_contents($url);
+            $data = json_decode($response, true);
 
-        if (!$data) {
-            $data = [
-                "question" => "Fallback: What is 2 + 2?",
-                "options" => ["3", "4", "5", "22"],
-                "answer" => "4"
-            ];
-        }
-        echo json_encode($data);
-        exit;
-    }
-
-    if ($_GET['action'] === 'save_result' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $result = $_POST['result'] ?? null;
-
-        if (!$result) {
-            echo json_encode(["success" => false, "message" => "No result"]);
+            if (!$data || !isset($data['question']) || !isset($data['options']) || !isset($data['answer'])) {
+                $data = [
+                    "question" => "Fallback: What is 2 + 2?",
+                    "options" => ["3", "4", "5", "22"],
+                    "answer" => "4"
+                ];
+            }
+            echo json_encode($data);
             exit;
         }
 
-        // Save result
-        $stmt = $pdo->prepare("INSERT INTO game_results (game_id, user_id, result) VALUES (?, ?, ?)");
-        $stmt->execute([$game_id, $user_id, $result]);
+        if ($_GET['action'] === 'save_result' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+            $result = $_POST['result'] ?? null;
 
-        // Update stats
-        if ($result === "win") {
-            $pdo->prepare("UPDATE user_stats 
-                           SET xp = xp + 50, games_played = games_played + 1, games_won = games_won + 1 
-                           WHERE user_id = ?")->execute([$user_id]);
-        } else {
-            $pdo->prepare("UPDATE user_stats 
-                           SET xp = xp + 10, games_played = games_played + 1 
-                           WHERE user_id = ?")->execute([$user_id]);
+            if (!$result) {
+                echo json_encode(["success" => false, "message" => "No result provided"]);
+                exit;
+            }
+
+            if (!$user_id) {
+                echo json_encode(["success" => false, "message" => "User not authenticated"]);
+                exit;
+            }
+
+            // Save result to game_results table
+            $stmt = $pdo->prepare("INSERT INTO game_results (game_id, user_id, result) VALUES (?, ?, ?)");
+            $stmt->execute([$game_id, $user_id, $result]);
+
+            // Update user stats
+            if ($result === "win") {
+                $pdo->prepare("UPDATE user_stats 
+                               SET xp = xp + 50, games_played = games_played + 1, games_won = games_won + 1 
+                               WHERE user_id = ?")->execute([$user_id]);
+            } else {
+                $pdo->prepare("UPDATE user_stats 
+                               SET xp = xp + 10, games_played = games_played + 1 
+                               WHERE user_id = ?")->execute([$user_id]);
+            }
+
+            echo json_encode(["success" => true]);
+            exit;
         }
 
-        echo json_encode(["success" => true]);
+        // If action is not recognized
+        echo json_encode(["success" => false, "message" => "Invalid action"]);
+        exit;
+
+    } catch (Exception $e) {
+        // Log the error for debugging (optional)
+        error_log("AJAX Error: " . $e->getMessage());
+        // Return a JSON error to the frontend instead of a 500
+        echo json_encode(["success" => false, "message" => "An internal error occurred"]);
         exit;
     }
 }
+
+// If not an AJAX request, output the HTML
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Code Challenge</title>
+  <!-- FIX: Removed the space in the CDN URL -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     if (localStorage.getItem("theme") === "dark") {
@@ -68,14 +93,8 @@ if (isset($_GET['action'])) {
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col">
   
-  <!-- Top Bar -->
-  <div class="flex justify-between items-center px-6 py-4 bg-white dark:bg-gray-800 shadow">
-    <h1 class="font-bold text-xl">🔥 Code Quiz Arena</h1>
-    <div>
-      <button onclick="toggleTheme()" class="px-3 py-1 rounded bg-yellow-500 text-black">Toggle Theme</button>
-      <span class="ml-4 font-semibold">User #<?php echo $user_id; ?></span>
-    </div>
-  </div>
+  <!-- Top Bar (Already included and rendered by top_bar.php) -->
+  <!-- The content of top_bar.php is output here because of the include statement above -->
 
   <!-- Game Container -->
   <div class="flex-grow flex items-center justify-center p-6">
@@ -111,7 +130,7 @@ function toggleTheme() {
 // Fetch question from backend
 async function fetchQuestion() {
   const diff = document.getElementById("difficulty").value;
-  const res = await fetch("1.php?action=get_question&difficulty=" + diff);
+  const res = await fetch("?action=get_question&difficulty=" + diff); // Use relative path "?"
   const data = await res.json();
 
   document.getElementById("question").innerText = data.question;
@@ -152,10 +171,10 @@ async function submitAnswer(timeout = false) {
 
   let result = (answer === correctAnswer && !timeout) ? "win" : "lose";
 
-  await fetch("1.php?action=save_result", {
+  await fetch("?action=save_result", { // Use relative path "?"
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `result=${result}`
+    body: `result=${encodeURIComponent(result)}`
   });
 
   alert("Game Over! You " + result);
