@@ -1,25 +1,7 @@
 <?php
 session_start();
-require_once "../conn.php";
-
-// 🔐 Auth check (same pattern as top_bar.php)
-if (!isset($_COOKIE['user'])) {
-    header("Location: ../auth");
-    exit;
-}
-
-$user = json_decode($_COOKIE['user'], true);
-
-$stmt = $pdo->prepare("SELECT * FROM users WHERE google_id = :gid OR pxxl_id = :gid LIMIT 1");
-$stmt->execute([":gid" => $user['id'] ?? '']);
-$dbUser = $stmt->fetch(PDO::FETCH_ASSOC);
-
-if (!$dbUser) {
-    setcookie("user", "", time() - 3600, "/");
-    header("Location: ../auth");
-    exit;
-}
-
+include "top_bar.php";
+error_reporting(1);
 // 📊 Load user stats
 $stmt = $pdo->prepare("SELECT * FROM user_stats WHERE user_id = :uid LIMIT 1");
 $stmt->execute([":uid" => $dbUser['id']]);
