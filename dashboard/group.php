@@ -1,8 +1,5 @@
 <?php
 include 'top_bar.php';
-include 'db.php';
-
-$user_id = 1; // <-- Replace with $_SESSION['user_id'] later
 
 // If creating a new group
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_group'])) {
