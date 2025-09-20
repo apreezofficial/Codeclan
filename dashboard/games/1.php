@@ -2,7 +2,7 @@
 session_start();
 
 include '../top_bar.php';
-
+error_reporting(1);
 $user_id = $dbUser['id'] ?? null; 
 $game_id = 1;
 
