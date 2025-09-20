@@ -3,7 +3,7 @@ include 'top_bar.php';
 
 // Fetch leaderboard stats
 $stmt = $pdo->query("
-    SELECT u.id, u.name, us.level, us.xp, us.games_played, us.games_won, us.rank_position
+    SELECT u.id, u.name, u.picture, us.level, us.xp, us.games_played, us.games_won, us.rank_position
     FROM users u
     JOIN user_stats us ON u.id = us.user_id
     ORDER BY us.rank_position ASC, us.xp DESC
@@ -24,7 +24,7 @@ $players = $stmt->fetchAll(PDO::FETCH_ASSOC);
       theme: {
         extend: {
           colors: {
-            brand: "#FDC500",
+            brand: "#6B21A8", 
           },
         },
       },
@@ -36,7 +36,9 @@ $players = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <div class="max-w-6xl mx-auto px-4 py-8">
   <!-- Header -->
   <div class="flex items-center justify-between mb-6">
-    <h1 class="text-2xl font-bold">🏆 Leaderboard</h1>
+    <h1 class="text-2xl font-bold text-brand flex items-center gap-2">
+      <span>🏆</span> Leaderboard
+    </h1>
     <div class="flex space-x-2">
       <button id="cardViewBtn" class="px-3 py-1 rounded-lg bg-brand text-white">Cards</button>
       <button id="tableViewBtn" class="px-3 py-1 rounded-lg bg-gray-300 dark:bg-gray-700">Table</button>
@@ -47,15 +49,24 @@ $players = $stmt->fetchAll(PDO::FETCH_ASSOC);
   <div id="cardView" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
     <?php foreach ($players as $player): ?>
       <div class="bg-white dark:bg-gray-800 rounded-2xl shadow p-6 flex flex-col items-center">
-        <div class="w-16 h-16 rounded-full bg-brand text-white flex items-center justify-center text-xl font-bold mb-4">
-          <?= strtoupper(substr($player['name'], 0, 2)) ?>
-        </div>
+        <!-- Avatar -->
+        <img src="<?= htmlspecialchars($player['picture'] ?? '/assets/img/default-avatar.png') ?>"
+             alt="<?= htmlspecialchars($player['name']) ?>"
+             class="w-16 h-16 rounded-full border-4 border-brand mb-4 object-cover">
+
+        <!-- Name + Stats -->
         <h2 class="text-lg font-semibold mb-2"><?= htmlspecialchars($player['name']) ?></h2>
-        <p class="text-sm text-gray-600 dark:text-gray-400">Level <?= $player['level'] ?> • <?= $player['xp'] ?> XP</p>
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+          Level <?= $player['level'] ?> • <?= $player['xp'] ?> XP
+        </p>
+
+        <!-- Games -->
         <div class="flex justify-between w-full mt-4 text-sm">
           <span>Games: <?= $player['games_played'] ?></span>
           <span>Wins: <?= $player['games_won'] ?></span>
         </div>
+
+        <!-- Rank -->
         <div class="mt-3 font-bold text-brand">Rank #<?= $player['rank_position'] ?></div>
       </div>
     <?php endforeach; ?>
@@ -67,7 +78,7 @@ $players = $stmt->fetchAll(PDO::FETCH_ASSOC);
       <thead>
         <tr class="bg-gray-200 dark:bg-gray-700">
           <th class="px-4 py-2">Rank</th>
-          <th class="px-4 py-2">Name</th>
+          <th class="px-4 py-2">Player</th>
           <th class="px-4 py-2">Level</th>
           <th class="px-4 py-2">XP</th>
           <th class="px-4 py-2">Games</th>
@@ -78,7 +89,12 @@ $players = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php foreach ($players as $player): ?>
         <tr class="border-b border-gray-300 dark:border-gray-600">
           <td class="px-4 py-2 font-bold text-brand">#<?= $player['rank_position'] ?></td>
-          <td class="px-4 py-2"><?= htmlspecialchars($player['name']) ?></td>
+          <td class="px-4 py-2 flex items-center gap-3">
+            <img src="<?= htmlspecialchars($player['picture'] ?? 'https://avatars.githubusercontent.com/u/193069706?v=4') ?>"
+                 alt="<?= htmlspecialchars($player['name']) ?>"
+                 class="w-8 h-8 rounded-full object-cover">
+            <?= htmlspecialchars($player['name']) ?>
+          </td>
           <td class="px-4 py-2"><?= $player['level'] ?></td>
           <td class="px-4 py-2"><?= $player['xp'] ?></td>
           <td class="px-4 py-2"><?= $player['games_played'] ?></td>
