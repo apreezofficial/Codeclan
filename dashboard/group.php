@@ -1,6 +1,6 @@
 <?php
 include 'top_bar.php';
-
+error_reporting(1);
 // If creating a new group
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_group'])) {
     $name = trim($_POST['name']);
