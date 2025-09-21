@@ -2,10 +2,6 @@
 session_start();
 include 'top_bar.php';
 
-if (!isset($_SESSION['user_id'])) {
-    die("User not logged in.");
-}
-$user_id = $_SESSION['user_id'];
 
 // Game config
 $points_win  = 50;
@@ -25,7 +21,6 @@ if (!$game) {
     $game_id = $game['id'];
 }
 
-// AJAX handler for final game result
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     header('Content-Type: application/json');
     
