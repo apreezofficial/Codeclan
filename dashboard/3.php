@@ -142,8 +142,8 @@ const cardImages = [
     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRb7wbR6rpuhAKL7CabY6a8zG0ItKw0m7-zX8kqGIUSVARjmKdE9KAXY0I&s',
     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSKhm0olpbGUYijafFR4zKQ8EN7NW3y852IE66e9YJnmcOD41aQ35bm3fE&s',
     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRw6MgLzNil3-aq4H2A__gC5sfZNC_HjzwnYRwUE_3ojJtESUPO3l19ZBg&s',
-    'https://codingnepalweb.com/demos/memory-card-game-javascript/images/img-5.png',
-    'https://codingnepalweb.com/demos/memory-card-game-javascript/images/img-6.png',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgqylOb4vpsg_6i5XcM7LaDb5lCqs-F7Yr6ZcrCvKpfZDrleGVoCzxdVQ&s',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ0ZK8v0KJhqyPCcqM4hlT6EKciZeKnx2yvyCC-0L8sb46STdwhWxSAXmA&s',
     'https://codingnepalweb.com/demos/memory-card-game-javascript/images/img-7.png',
     'https://codingnepalweb.com/demos/memory-card-game-javascript/images/img-8.png'
 ];
