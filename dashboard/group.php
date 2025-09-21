@@ -241,6 +241,7 @@ if ($group_id) {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><?= $group_id ? htmlspecialchars($group['name'] ?? 'Group') : "CodeClan Groups" ?></title>
+  <!-- FIXED: Removed extra spaces in CDN URLs -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script>
@@ -300,11 +301,11 @@ if ($group_id) {
         }
         ?>
         <?php if ($isMember): ?>
-          <button type="submit" name="leave_group" class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white text-xs rounded transition">
-            <i class="fas fa-sign-out-alt mr-1"></i> Leave Group
-          </button>
+          <a href="group.php?group=<?= $group_id ?>" class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs rounded transition flex items-center">
+            <i class="fas fa-eye mr-1"></i> View Group
+          </a>
         <?php else: ?>
-          <button type="submit" name="join_group" class="px-3 py-1 bg-brand hover:bg-purple-600 text-white text-xs rounded transition">
+          <button type="submit" name="join_group" class="px-3 py-1 bg-brand hover:bg-purple-600 text-white text-xs rounded transition flex items-center">
             <i class="fas fa-user-plus mr-1"></i> Join Group
           </button>
         <?php endif; ?>
@@ -318,7 +319,8 @@ if ($group_id) {
 
   <div class="flex flex-1 overflow-hidden">
     <!-- Groups Sidebar (Collapsible on Mobile) -->
-    <aside class="w-64 bg-gray-800/30 backdrop-blur-sm border-r border-gray-700/50 flex-shrink-0 hidden md:block">
+    <!-- FIXED: Added id="sidebar" -->
+    <aside id="sidebar" class="w-64 bg-gray-800/30 backdrop-blur-sm border-r border-gray-700/50 flex-shrink-0 transition-transform duration-300 ease-in-out -translate-x-full md:translate-x-0 md:block fixed md:static inset-y-0 left-0 z-20 md:z-auto">
       <div class="p-4 flex flex-col h-full">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-lg font-semibold flex items-center">
@@ -379,9 +381,21 @@ if ($group_id) {
                 </div>
                 <form method="POST" class="inline">
                   <input type="hidden" name="group_id" value="<?= $pg['id'] ?>">
-                  <button type="submit" name="join_group" class="opacity-0 group-hover:opacity-100 transition-opacity bg-accent hover:bg-orange-500 text-white text-xs py-1 px-2 rounded">
-                    Join
-                  </button>
+                  <?php 
+                  // Check if user is already a member of this public group
+                  $stmt = $pdo->prepare("SELECT id FROM group_members WHERE group_id = ? AND user_id = ?");
+                  $stmt->execute([$pg['id'], $user_id]);
+                  $isMemberOfThisGroup = $stmt->fetch();
+                  ?>
+                  <?php if ($isMemberOfThisGroup): ?>
+                    <a href="group.php?group=<?= $pg['id'] ?>" class="opacity-0 group-hover:opacity-100 transition-opacity bg-green-600 hover:bg-green-700 text-white text-xs py-1 px-2 rounded">
+                      View Group
+                    </a>
+                  <?php else: ?>
+                    <button type="submit" name="join_group" class="opacity-0 group-hover:opacity-100 transition-opacity bg-accent hover:bg-orange-500 text-white text-xs py-1 px-2 rounded">
+                      Join
+                    </button>
+                  <?php endif; ?>
                 </form>
               </div>
             <?php endforeach; ?>
@@ -422,9 +436,21 @@ if ($group_id) {
                     <span class="text-sm text-gray-400"><i class="fas fa-users mr-1"></i> <?= $pg['member_count'] ?> members</span>
                     <form method="POST" class="inline">
                       <input type="hidden" name="group_id" value="<?= $pg['id'] ?>">
-                      <button type="submit" name="join_group" class="bg-brand hover:bg-purple-600 text-white py-1.5 px-3 rounded-lg font-medium transition text-sm">
-                        Join Group
-                      </button>
+                      <?php 
+                      // Check if user is already a member
+                      $stmt = $pdo->prepare("SELECT id FROM group_members WHERE group_id = ? AND user_id = ?");
+                      $stmt->execute([$pg['id'], $user_id]);
+                      $isMemberOfThisGroup = $stmt->fetch();
+                      ?>
+                      <?php if ($isMemberOfThisGroup): ?>
+                        <a href="group.php?group=<?= $pg['id'] ?>" class="bg-green-600 hover:bg-green-700 text-white py-1.5 px-3 rounded-lg font-medium transition text-sm">
+                          <i class="fas fa-eye mr-1"></i> View Group
+                        </a>
+                      <?php else: ?>
+                        <button type="submit" name="join_group" class="bg-brand hover:bg-purple-600 text-white py-1.5 px-3 rounded-lg font-medium transition text-sm">
+                          <i class="fas fa-user-plus mr-1"></i> Join Group
+                        </button>
+                      <?php endif; ?>
                     </form>
                   </div>
                 </div>
@@ -549,20 +575,27 @@ if ($group_id) {
       </form>
     </div>
   </div>
-<script>
-  document.getElementById('toggle-sidebar').addEventListener('click', function() {
-    const sidebar = document.getElementById('sidebar');
-    // Check if sidebar is hidden
-    if (sidebar.classList.contains('-translate-x-full')) {
-      sidebar.classList.remove('-translate-x-full');
-      sidebar.classList.add('translate-x-0');
-    } else {
-      sidebar.classList.add('-translate-x-full');
-      sidebar.classList.remove('translate-x-0');
-    }
-  });
-</script>
+
+  <!-- Sidebar Backdrop (Optional but Recommended) -->
+  <div id="sidebar-backdrop" class="fixed inset-0 bg-black/50 z-10 hidden md:hidden" onclick="document.getElementById('sidebar').classList.add('-translate-x-full'); this.classList.add('hidden');"></div>
+
   <script>
+    // Sidebar Toggle
+    document.getElementById('toggle-sidebar').addEventListener('click', function() {
+        const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('sidebar-backdrop');
+        
+        if (sidebar.classList.contains('-translate-x-full')) {
+            sidebar.classList.remove('-translate-x-full');
+            sidebar.classList.add('translate-x-0');
+            backdrop.classList.remove('hidden');
+        } else {
+            sidebar.classList.add('-translate-x-full');
+            sidebar.classList.remove('translate-x-0');
+            backdrop.classList.add('hidden');
+        }
+    });
+
     // Theme Toggle
     function toggleTheme() {
         document.documentElement.classList.toggle('dark');
