@@ -171,10 +171,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 li.className = 'card cursor-pointer relative w-full aspect-square perspective-1000 preserve-3d rounded-xl bg-white dark:bg-gray-700 shadow-md';
                 li.innerHTML = `
                     <div class="view front-view absolute inset-0 flex items-center justify-center bg-brand rounded-xl">
-                        <img src="images/que_icon.svg" alt="icon" class="w-6 md:w-8">
+                        <img src="https://codingnepalweb.com/demos/memory-card-game-javascript/images/que_icon.svg" alt="icon" class="w-6 md:w-8">
                     </div>
                     <div class="view back-view absolute inset-0 flex items-center justify-center bg-white dark:bg-gray-800 rounded-xl">
-                        <img src="images/${img}" alt="card-img" class="max-w-12 md:max-w-16">
+                        <img src="${img}" alt="card-img" class="max-w-12 md:max-w-16">
                     </div>
                 `;
                 li.addEventListener('click', flipCard);
