@@ -59,10 +59,10 @@ if (!$dbUser) {
 
   <!-- Navbar -->
   <nav class="sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 dark:from-purple-800 dark:to-indigo-900 shadow-lg">
-    <div class="flex items-center space-x-3">
-      <img src="./assets/img/codeclanlogo3d.png" alt="CodeClan Logo" class="w-10 h-10 rounded-full shadow-md">
+    <a href="./" class="flex items-center space-x-3">
+      <img src="../assets/img/codeclanlogo3d.png" alt="CodeClan Logo" class="w-10 h-10 rounded-full shadow-md">
       <span class="hidden sm:block text-xl font-extrabold text-white tracking-tight">CodeClan</span>
-    </div>
+    </a>
 
     <!-- Desktop Nav (Hidden on Mobile) -->
     <div class="hidden md:flex space-x-6 text-white font-medium">
