@@ -45,15 +45,15 @@ include 'conn.php';?>
 </head>
 <body class="dark:bg-black">
 <?php 
-include 'nav.php';
-include 'hero.php';
-include 'about.php';
-include 'idolo.php';
-include 'programs.php';
-include 'community.php';
-include 'why.php';
+include 'Inc/nav.php';
+include 'partials/hero.php';
+include 'partials/about.php';
+include 'partials/idolo.php';
+include 'partials/programs.php';
+include 'partials/community.php';
+include 'partials/why.php';
 include 'event.php';
-include 'footer.php';
+include 'Inc/footer.php';
 ?>
 </body>
 </html>

@@ -1,5 +1,5 @@
 <?php
-  include 'conn.php';
+  include '/conn.php';
   $limit = basename($_SERVER['PHP_SELF']) === 'index.php' ? 3 : 1000;
   $today = date('Y-m-d');
   $sql = "SELECT * FROM events ORDER BY event_date DESC LIMIT $limit";
@@ -22,7 +22,7 @@
         <?php
           $isUpcoming = $event['event_date'] >= $today ? 'upcoming' : 'past';
         ?>
-<a href="event_single.php?id=<?= $event['id'] ?>" class="block group event-card <?= $isUpcoming ?> bg-white dark:bg-[#111] rounded-2xl shadow-xl overflow-hidden border border-gray-200 dark:border-[#222] hover:scale-[1.02] hover:shadow-2xl transition-all duration-300">
+<a href="/event_single.php?id=<?= $event['id'] ?>" class="block group event-card <?= $isUpcoming ?> bg-white dark:bg-[#111] rounded-2xl shadow-xl overflow-hidden border border-gray-200 dark:border-[#222] hover:scale-[1.02] hover:shadow-2xl transition-all duration-300">
   <div class="relative">
     <img src="<?= htmlspecialchars($event['image_url']) ?>" alt="<?= htmlspecialchars($event['title']) ?>" class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105" />
 
@@ -53,7 +53,7 @@
     <!-- View All Button -->
     <?php if (basename($_SERVER['PHP_SELF']) === 'index.php'): ?>
       <div class="text-center mt-10">
-        <a href="events.php" class="inline-block bg-black dark:bg-[#1c1c1c] text-white px-6 py-3 rounded-full font-semibold hover:bg-[#6A2BA1] transition">View All Events >></a>
+        <a href="/events.php" class="inline-block bg-black dark:bg-[#1c1c1c] text-white px-6 py-3 rounded-full font-semibold hover:bg-[#6A2BA1] transition">View All Events >></a>
       </div>
     <?php endif; ?>
   </div>
