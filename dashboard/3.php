@@ -139,8 +139,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     <script>
         // Card images array (8 pairs = 16 cards)
         const cardImages = [
-            'img-1.png', 'img-2.png', 'img-3.png', 'img-4.png',
-            'img-5.png', 'img-6.png', 'img-7.png', 'img-8.png'
+            'https://codingnepalweb.com/demos/memory-card-game-javascript/images/img-1.png', 'https://codingnepalweb.com/demos/memory-card-game-javascript/images/img-2.png', 'https://codingnepalweb.com/demos/memory-card-game-javascript/images/img-3.png', 'https://codingnepalweb.com/demos/memory-card-game-javascript/images/img-4.png',
+            'https://codingnepalweb.com/demos/memory-card-game-javascript/images/img-5.png', 'https://codingnepalweb.com/demos/memory-card-game-javascript/images/img-6.png', 'https://codingnepalweb.com/demos/memory-card-game-javascript/images/img-7.png', 'https://codingnepalweb.com/demos/memory-card-game-javascript/images/img-8.png'
         ];
 
         let matched = 0;
