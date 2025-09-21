@@ -2,7 +2,6 @@
 session_start();
 include "top_bar.php";
 error_reporting(1);
-
 // 📊 Load user stats
 $stmt = $pdo->prepare("SELECT * FROM user_stats WHERE user_id = :uid LIMIT 1");
 $stmt->execute([":uid" => $dbUser['id']]);
@@ -30,65 +29,49 @@ $stats = $stmt->fetch(PDO::FETCH_ASSOC) ?: [
       document.documentElement.classList.add('dark')
     }
   </script>
-  <style>
-    .card {
-      @apply bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-5 transition hover:shadow-2xl hover:-translate-y-1;
-    }
-  </style>
+    <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: "#6B21A8",
+            brandLight: "#9333EA"
+          },
+        },
+      },
+    };
+    </script>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
 
-<div class="max-w-7xl mx-auto p-6">
+  <!-- 📊 Dashboard -->
+  <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-  <!-- 👤 Profile Section -->
-  <div class="card flex flex-col items-center text-center mb-8">
-    <img src="<?= htmlspecialchars($dbUser['picture']); ?>" 
-         class="w-24 h-24 rounded-full border-4 border-purple-600 shadow-lg" alt="Profile">
-    <h2 class="mt-4 text-2xl font-bold"><?= htmlspecialchars($dbUser['name']); ?></h2>
-    <p class="text-sm text-gray-500 dark:text-gray-400"><?= htmlspecialchars($dbUser['email']); ?></p>
-    
-    <!-- Stats Badges -->
-    <div class="mt-6 grid grid-cols-3 gap-6 w-full">
-      <div class="text-center">
-        <p class="text-2xl font-bold text-purple-600"><?= $stats['level']; ?></p>
-        <span class="text-xs text-gray-500">Level</span>
-      </div>
-      <div class="text-center">
-        <p class="text-2xl font-bold text-purple-600"><?= $stats['xp']; ?></p>
-        <span class="text-xs text-gray-500">XP</span>
-      </div>
-      <div class="text-center">
-        <p class="text-2xl font-bold text-purple-600"><?= $stats['games_won']; ?></p>
-        <span class="text-xs text-gray-500">Wins</span>
+    <!-- Profile Card -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-5 flex flex-col items-center text-center">
+      <img src="<?php echo htmlspecialchars($dbUser['picture']); ?>" 
+           class="w-20 h-20 rounded-full border-4 border-brand" alt="Profile">
+      <h2 class="mt-3 text-lg font-bold"><?php echo htmlspecialchars($dbUser['name']); ?></h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400"><?php echo htmlspecialchars($dbUser['email']); ?></p>
+      <div class="mt-4 flex space-x-6">
+        <div class="text-center">
+          <p class="text-xl font-bold text-brand"><?php echo $stats['level']; ?></p>
+          <span class="text-xs text-gray-500">Level</span>
+        </div>
+        <div class="text-center">
+          <p class="text-xl font-bold text-brand"><?php echo $stats['xp']; ?></p>
+          <span class="text-xs text-gray-500">XP</span>
+        </div>
+        <div class="text-center">
+          <p class="text-xl font-bold text-brand"><?php echo $stats['games_won']; ?></p>
+          <span class="text-xs text-gray-500">Wins</span>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- 🚀 Quick Actions -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-    <a href="games.php" class="card flex flex-col items-center text-purple-600">
-      <i data-lucide="gamepad-2" class="w-8 h-8 mb-2"></i>
-      <span>Play Game</span>
-    </a>
-    <a href="leaderboard.php" class="card flex flex-col items-center text-purple-600">
-      <i data-lucide="trophy" class="w-8 h-8 mb-2"></i>
-      <span>Leaderboard</span>
-    </a>
-    <a href="chats.php" class="card flex flex-col items-center text-purple-600">
-      <i data-lucide="messages-square" class="w-8 h-8 mb-2"></i>
-      <span>Chats</span>
-    </a>
-    <a href="achievements.php" class="card flex flex-col items-center text-purple-600">
-      <i data-lucide="medal" class="w-8 h-8 mb-2"></i>
-      <span>Achievements</span>
-    </a>
-  </div>
-
-  <!-- 📊 Analytics Section -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-    
-    <!-- XP Growth -->
-    <div class="card">
+    <!-- XP Growth Chart -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-5">
       <h3 class="font-semibold mb-3 flex items-center space-x-2">
         <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
         <span>XP Progress</span>
@@ -96,29 +79,16 @@ $stats = $stmt->fetch(PDO::FETCH_ASSOC) ?: [
       <canvas id="xpChart"></canvas>
     </div>
 
-    <!-- Games Summary -->
-    <div class="card">
+    <!-- Games Played Chart -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-5">
       <h3 class="font-semibold mb-3 flex items-center space-x-2">
-        <i data-lucide="pie-chart" class="w-5 h-5"></i>
+        <i data-lucide="gamepad-2" class="w-5 h-5"></i>
         <span>Games Summary</span>
       </h3>
-      <?php if ($stats['games_played'] > 0): ?>
-        <canvas id="gamesChart"></canvas>
-      <?php else: ?>
-        <div class="flex flex-col items-center text-center p-6">
-          <img src="assets/no-games.svg" class="w-32 mb-4" alt="No games">
-          <p class="mb-3 text-gray-500">You haven’t played any games yet.</p>
-          <a href="games.php" 
-             class="px-5 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
-            🎮 Play your first game
-          </a>
-        </div>
-      <?php endif; ?>
+      <canvas id="gamesChart"></canvas>
     </div>
 
   </div>
-
-</div>
 
 <script>
   lucide.createIcons();
@@ -130,29 +100,26 @@ $stats = $stmt->fetch(PDO::FETCH_ASSOC) ?: [
       labels: ["Start", "Now"],
       datasets: [{
         label: "XP",
-        data: [0, <?= $stats['xp']; ?>],
+        data: [0, <?php echo $stats['xp']; ?>],
         borderColor: "#6C2DC7",
         backgroundColor: "rgba(108,45,199,0.2)",
         fill: true,
-        tension: 0.4,
-        pointBackgroundColor: "#6C2DC7"
+        tension: 0.3
       }]
     },
     options: {
       responsive: true,
-      plugins: { legend: { display: false } },
-      scales: { y: { beginAtZero: true } }
+      plugins: { legend: { display: false } }
     }
   });
 
   // 🎮 Games Chart
-  <?php if ($stats['games_played'] > 0): ?>
   const gamesChart = new Chart(document.getElementById('gamesChart'), {
     type: 'doughnut',
     data: {
       labels: ["Played", "Won"],
       datasets: [{
-        data: [<?= $stats['games_played']; ?>, <?= $stats['games_won']; ?>],
+        data: [<?php echo $stats['games_played']; ?>, <?php echo $stats['games_won']; ?>],
         backgroundColor: ["#6C2DC7", "#9D4EDD"]
       }]
     },
@@ -161,7 +128,6 @@ $stats = $stmt->fetch(PDO::FETCH_ASSOC) ?: [
       plugins: { legend: { position: 'bottom' } }
     }
   });
-  <?php endif; ?>
 </script>
 
 </body>
