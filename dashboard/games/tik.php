@@ -1,5 +1,8 @@
 <?php
 include '../top_bar.php';
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
 
 // --- GAME CONFIG (will use db later ...)
 $points_win  = 50;
