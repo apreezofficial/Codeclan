@@ -137,11 +137,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     </div>
 
     <script>
-        // Card images array (8 pairs = 16 cards)
-        const cardImages = [
-            'https://codingnepalweb.com/demos/memory-card-game-javascript/images/img-1.png', 'https://codingnepalweb.com/demos/memory-card-game-javascript/images/img-2.png', 'https://codingnepalweb.com/demos/memory-card-game-javascript/images/img-3.png', 'https://codingnepalweb.com/demos/memory-card-game-javascript/images/img-4.png',
-            'https://codingnepalweb.com/demos/memory-card-game-javascript/images/img-5.png', 'https://codingnepalweb.com/demos/memory-card-game-javascript/images/img-6.png', 'https://codingnepalweb.com/demos/memory-card-game-javascript/images/img-7.png', 'https://codingnepalweb.com/demos/memory-card-game-javascript/images/img-8.png'
-        ];
+const cardImages = [
+    'https://codingnepalweb.com/demos/memory-card-game-javascript/images/img-1.png',
+    'https://codingnepalweb.com/demos/memory-card-game-javascript/images/img-2.png',
+    'https://codingnepalweb.com/demos/memory-card-game-javascript/images/img-3.png',
+    'https://codingnepalweb.com/demos/memory-card-game-javascript/images/img-4.png',
+    'https://codingnepalweb.com/demos/memory-card-game-javascript/images/img-5.png',
+    'https://codingnepalweb.com/demos/memory-card-game-javascript/images/img-6.png',
+    'https://codingnepalweb.com/demos/memory-card-game-javascript/images/img-7.png',
+    'https://codingnepalweb.com/demos/memory-card-game-javascript/images/img-8.png'
+];
 
         let matched = 0;
         let cardOne, cardTwo;
@@ -174,8 +179,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                         <img src="https://codingnepalweb.com/demos/memory-card-game-javascript/images/que_icon.svg" alt="icon" class="w-6 md:w-8">
                     </div>
                     <div class="view back-view absolute inset-0 flex items-center justify-center bg-white dark:bg-gray-800 rounded-xl">
-                        <img src="${img}" alt="card-img" class="max-w-12 md:max-w-16">
-                    </div>
+      
+<img src="${img.trim()}" alt="card-img" class="max-w-12 md:max-w-16">
+</div>
                 `;
                 li.addEventListener('click', flipCard);
                 cardsContainer.appendChild(li);
