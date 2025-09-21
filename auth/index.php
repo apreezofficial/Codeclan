@@ -2,7 +2,7 @@
 session_start();
 // If user is already logged in, redirect them
 if (isset($_COOKIE['user'])) {
-    header("Location: ./");
+    header("Location: dashboard/index.php");
     exit;
 }
 ?>
