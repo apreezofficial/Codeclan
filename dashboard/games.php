@@ -1,5 +1,5 @@
 <?php
-include 'top_bar.php'; 
+include 'top_bar.php';
 
 $stmt = $pdo->prepare("
     SELECT g.id, g.title, g.description, g.created_at,
@@ -27,7 +27,7 @@ $userResults = $resultStmt->fetchAll(PDO::FETCH_GROUP|PDO::FETCH_ASSOC);
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Games</title>
+  <title>🎮 Games</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -35,7 +35,8 @@ $userResults = $resultStmt->fetchAll(PDO::FETCH_GROUP|PDO::FETCH_ASSOC);
       theme: {
         extend: {
           colors: {
-            brand: "#6B21A8", // purple vibe
+            brand: "#6B21A8",
+            'brand-light': '#8B5CF6',
           },
         },
       },
@@ -43,70 +44,95 @@ $userResults = $resultStmt->fetchAll(PDO::FETCH_GROUP|PDO::FETCH_ASSOC);
   </script>
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100">
+<body class="bg-gradient-to-br from-purple-900 via-gray-900 to-indigo-900 dark:bg-gray-900 text-gray-100 min-h-screen">
 
-<div class="max-w-6xl mx-auto px-4 py-8">
+<div class="max-w-6xl mx-auto px-4 py-10">
   <!-- Header -->
-  <div class="flex items-center justify-between mb-8">
-    <h1 class="text-3xl font-bold flex items-center gap-2">
-      🎮 Games
+  <div class="flex items-center justify-between mb-10">
+    <h1 class="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
+      🎮 Game Library
     </h1>
   </div>
 
   <!-- Games Grid -->
-  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+  <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
     <?php foreach ($games as $game): ?>
       <?php 
         $lastResult = $userResults[$game['id']][0] ?? null;
+        $gameUrl = $game['id'] . '.php';
+        $isPlayable = file_exists($_SERVER['DOCUMENT_ROOT'] . $gameUrl);
       ?>
-      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-xl transition-shadow p-6 flex flex-col">
+      <div class="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden flex flex-col">
         
-        <!-- Title + Category -->
-        <div class="flex items-center justify-between mb-3">
-          <h2 class="text-xl font-semibold text-brand dark:text-purple-300">
-            <?= htmlspecialchars($game['title']) ?>
-          </h2>
-          <?php if ($game['category']): ?>
-            <span class="px-2 py-1 text-xs rounded-full bg-purple-100 dark:bg-purple-700 text-purple-700 dark:text-purple-200">
-              <?= htmlspecialchars($game['category']) ?>
-            </span>
-          <?php endif; ?>
-        </div>
+        <!-- Badge Overlay -->
+        <?php if (!$isPlayable): ?>
+          <div class="absolute top-0 right-0 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg z-10">
+            🚧 In Prod
+          </div>
+        <?php endif; ?>
 
-        <!-- Description -->
-        <p class="text-sm text-gray-600 dark:text-gray-400 flex-grow">
-          <?= htmlspecialchars($game['description']) ?>
-        </p>
+        <!-- Content -->
+        <div class="p-6 flex flex-col h-full">
+          <!-- Title + Category -->
+          <div class="flex items-start justify-between mb-4">
+            <h2 class="text-xl font-bold text-gray-800 dark:text-white group-hover:text-brand dark:group-hover:text-purple-300 transition-colors">
+              <?= htmlspecialchars($game['title']) ?>
+            </h2>
+            <?php if ($game['category']): ?>
+              <span class="px-3 py-1 text-xs font-medium rounded-full bg-purple-100 dark:bg-purple-700/50 text-purple-700 dark:text-purple-300 whitespace-nowrap">
+                <?= htmlspecialchars($game['category']) ?>
+              </span>
+            <?php endif; ?>
+          </div>
 
-        <!-- User Result -->
-        <div class="mt-4">
-          <?php if ($lastResult): ?>
-            <div class="flex items-center gap-2 text-sm">
-              <?php if ($lastResult['result'] === 'win'): ?>
-                <i data-lucide="trophy" class="text-yellow-500"></i>
-                <span class="text-green-600 dark:text-green-400 font-medium">
-                  Won (Score: <?= $lastResult['score'] ?>)
-                </span>
-              <?php elseif ($lastResult['result'] === 'lose'): ?>
-                <i data-lucide="x-circle" class="text-red-500"></i>
-                <span class="text-red-600 dark:text-red-400 font-medium">
-                  Lost (Score: <?= $lastResult['score'] ?>)
-                </span>
-              <?php else: ?>
-                <i data-lucide="minus-circle" class="text-gray-400"></i>
-                <span class="text-gray-600 dark:text-gray-300 font-medium">
-                  Draw (Score: <?= $lastResult['score'] ?>)
-                </span>
-              <?php endif; ?>
-            </div>
-            <p class="text-xs text-gray-500 dark:text-gray-400">
-              Last played: <?= date("M d, Y", strtotime($lastResult['played_at'])) ?>
-            </p>
-          <?php else: ?>
-            <span class="text-xs text-gray-500 dark:text-gray-400">
-              ⏳ Not played yet
-            </span>
-          <?php endif; ?>
+          <!-- Description -->
+          <p class="text-sm text-gray-600 dark:text-gray-300 mb-6 flex-grow leading-relaxed">
+            <?= htmlspecialchars($game['description']) ?>
+          </p>
+
+          <!-- User Result -->
+          <div class="mb-6">
+            <?php if ($lastResult): ?>
+              <div class="flex items-center gap-2 text-sm mb-1">
+                <?php if ($lastResult['result'] === 'win'): ?>
+                  <i data-lucide="trophy" class="text-yellow-500 w-4 h-4"></i>
+                  <span class="text-green-600 dark:text-green-400 font-medium">
+                    Won (<?= $lastResult['score'] ?> XP)
+                  </span>
+                <?php elseif ($lastResult['result'] === 'lose'): ?>
+                  <i data-lucide="x-circle" class="text-red-500 w-4 h-4"></i>
+                  <span class="text-red-600 dark:text-red-400 font-medium">
+                    Lost (<?= $lastResult['score'] ?> XP)
+                  </span>
+                <?php else: ?>
+                  <i data-lucide="minus-circle" class="text-gray-400 w-4 h-4"></i>
+                  <span class="text-gray-600 dark:text-gray-300 font-medium">
+                    Draw (<?= $lastResult['score'] ?> XP)
+                  </span>
+                <?php endif; ?>
+              </div>
+              <p class="text-xs text-gray-500 dark:text-gray-400">
+                Last played: <?= date("M d, Y", strtotime($lastResult['played_at'])) ?>
+              </p>
+            <?php else: ?>
+              <span class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                <i data-lucide="clock" class="w-3 h-3"></i>
+                Not played yet
+              </span>
+            <?php endif; ?>
+          </div>
+
+          <!-- Play Button -->
+          <a 
+            href="<?= $isPlayable ? $gameUrl : '#' ?>"
+            class="w-full py-3 px-4 text-center font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500
+                   <?= $isPlayable 
+                      ? 'bg-gradient-to-r from-brand to-purple-700 hover:from-brand-light hover:to-purple-600 text-white shadow-md hover:shadow-lg cursor-pointer' 
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed opacity-70' ?>"
+            <?= $isPlayable ? '' : 'aria-disabled="true" tabindex="-1"' ?>
+          >
+            <?= $isPlayable ? '▶️ Play Now' : '🚧 In Production' ?>
+          </a>
         </div>
       </div>
     <?php endforeach; ?>
@@ -114,7 +140,16 @@ $userResults = $resultStmt->fetchAll(PDO::FETCH_GROUP|PDO::FETCH_ASSOC);
 </div>
 
 <script>
+  // Initialize Lucide Icons
   lucide.createIcons();
+
+  // Optional: Disable click on "In Production" cards
+  document.querySelectorAll('a[aria-disabled="true"]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      alert('This game is still in production. Check back soon! 🛠️');
+    });
+  });
 </script>
 
 </body>
