@@ -7,7 +7,7 @@ $group_id = isset($_GET['group']) ? intval($_GET['group']) : 0;
 $group = null;
 $messages = [];
 $groups = [];
-$publicGroups = []; // NEW: For discovery
+$publicGroups = [];
 $allUsers = [];
 $groupMembers = [];
 $errorMessage = '';
@@ -24,7 +24,7 @@ $stmt = $pdo->prepare("
 $stmt->execute([$user_id]);
 $groups = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Fetch ALL public groups for discovery (NEW)
+// Fetch ALL public groups for discovery
 $stmt = $pdo->prepare("
     SELECT g.*, COUNT(gm.id) as member_count, u.name as creator_name
     FROM groups g 
@@ -42,18 +42,47 @@ $stmt = $pdo->prepare("SELECT id, name, picture, email FROM users WHERE id != ?"
 $stmt->execute([$user_id]);
 $allUsers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Handle AJAX requests
-if (isset($_POST['action'])) {
-    header('Content-Type: application/json');
-    
+// Handle form submissions (NO AJAX except send_message)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        switch ($_POST['action']) {
-            case 'create_group':
-                $name = trim($_POST['name'] ?? '');
-                if (empty($name)) {
-                    throw new Exception("Group name is required.");
-                }
-                
+        if (isset($_POST['action']) && $_POST['action'] === 'send_message') {
+            // This is the ONLY AJAX endpoint
+            header('Content-Type: application/json');
+            
+            if (!$group_id) throw new Exception("No group selected.");
+            
+            $message = trim($_POST['message'] ?? '');
+            if (empty($message)) throw new Exception("Message cannot be empty.");
+            
+            // Verify user is a member
+            $stmt = $pdo->prepare("SELECT id FROM group_members WHERE group_id = ? AND user_id = ?");
+            $stmt->execute([$group_id, $user_id]);
+            if (!$stmt->fetch()) {
+                throw new Exception("You must join the group before sending messages.");
+            }
+            
+            $stmt = $pdo->prepare("INSERT INTO group_messages (group_id, sender_id, message) VALUES (?, ?, ?)");
+            $stmt->execute([$group_id, $user_id, $message]);
+            
+            // Return new message data for optimistic UI update
+            $stmt = $pdo->prepare("
+                SELECT gm.*, u.name, u.picture 
+                FROM group_messages gm
+                JOIN users u ON gm.sender_id = u.id
+                WHERE gm.id = ?
+            ");
+            $stmt->execute([$pdo->lastInsertId()]);
+            $newMessage = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            echo json_encode(['success' => true, 'message_data' => $newMessage]);
+            exit;
+        }
+        
+        if (isset($_POST['create_group'])) {
+            $name = trim($_POST['name'] ?? '');
+            if (empty($name)) {
+                $errorMessage = "Group name is required.";
+            } else {
                 $image = null;
                 if (!empty($_FILES['image']['name'])) {
                     $targetDir = "uploads/groups/";
@@ -64,142 +93,111 @@ if (isset($_POST['action'])) {
                     $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
                     
                     if (!in_array($imageFileType, ['jpg', 'jpeg', 'png', 'gif'])) {
-                        throw new Exception("Only JPG, JPEG, PNG & GIF files are allowed.");
+                        $errorMessage = "Only JPG, JPEG, PNG & GIF files are allowed.";
+                    } else if (!move_uploaded_file($_FILES["image"]["tmp_name"], $targetFile)) {
+                        $errorMessage = "Error uploading image.";
+                    } else {
+                        $image = $targetFile;
                     }
+                }
+                
+                if (!$errorMessage) {
+                    $stmt = $pdo->prepare("INSERT INTO groups (name, image, created_by) VALUES (?, ?, ?)");
+                    $stmt->execute([$name, $image, $user_id]);
+                    $new_group_id = $pdo->lastInsertId();
                     
-                    if (!move_uploaded_file($_FILES["image"]["tmp_name"], $targetFile)) {
-                        throw new Exception("Error uploading image.");
-                    }
-                    $image = $targetFile;
+                    $stmt = $pdo->prepare("INSERT INTO group_members (group_id, user_id, role) VALUES (?, ?, 'admin')");
+                    $stmt->execute([$new_group_id, $user_id]);
+                    
+                    $successMessage = "Group created successfully!";
+                    header("Location: group.php?group=" . $new_group_id);
+                    exit;
                 }
-                
-                $stmt = $pdo->prepare("INSERT INTO groups (name, image, created_by) VALUES (?, ?, ?)");
-                $stmt->execute([$name, $image, $user_id]);
-                $new_group_id = $pdo->lastInsertId();
-                
-                $stmt = $pdo->prepare("INSERT INTO group_members (group_id, user_id, role) VALUES (?, ?, 'admin')");
-                $stmt->execute([$new_group_id, $user_id]);
-                
-                echo json_encode(['success' => true, 'group_id' => $new_group_id, 'message' => 'Group created!']);
-                exit;
-                
-            case 'send_message':
-                if (!$group_id) throw new Exception("No group selected.");
-                
-                $message = trim($_POST['message'] ?? '');
-                if (empty($message)) throw new Exception("Message cannot be empty.");
-                
-                // Verify user is a member
-                $stmt = $pdo->prepare("SELECT id FROM group_members WHERE group_id = ? AND user_id = ?");
-                $stmt->execute([$group_id, $user_id]);
-                if (!$stmt->fetch()) {
-                    throw new Exception("You must join the group before sending messages.");
-                }
-                
-                $stmt = $pdo->prepare("INSERT INTO group_messages (group_id, sender_id, message) VALUES (?, ?, ?)");
-                $stmt->execute([$group_id, $user_id, $message]);
-                
-                // Return new message data for optimistic UI update
-                $stmt = $pdo->prepare("
-                    SELECT gm.*, u.name, u.picture 
-                    FROM group_messages gm
-                    JOIN users u ON gm.sender_id = u.id
-                    WHERE gm.id = ?
-                ");
-                $stmt->execute([$pdo->lastInsertId()]);
-                $newMessage = $stmt->fetch(PDO::FETCH_ASSOC);
-                
-                echo json_encode(['success' => true, 'message_data' => $newMessage]);
-                exit;
-                
-            case 'join_group':
-                $target_group_id = intval($_POST['group_id'] ?? 0);
-                if (!$target_group_id) throw new Exception("Invalid group.");
-                
+            }
+        }
+        
+        if (isset($_POST['join_group'])) {
+            $target_group_id = intval($_POST['group_id'] ?? 0);
+            if (!$target_group_id) {
+                $errorMessage = "Invalid group.";
+            } else {
                 $stmt = $pdo->prepare("SELECT id FROM group_members WHERE group_id = ? AND user_id = ?");
                 $stmt->execute([$target_group_id, $user_id]);
                 if ($stmt->fetch()) {
-                    throw new Exception("You are already a member.");
+                    $errorMessage = "You are already a member.";
+                } else {
+                    $stmt = $pdo->prepare("INSERT INTO group_members (group_id, user_id, role) VALUES (?, ?, 'member')");
+                    $stmt->execute([$target_group_id, $user_id]);
+                    $successMessage = "Joined group successfully!";
+                    header("Location: group.php?group=" . $target_group_id);
+                    exit;
                 }
-                
-                $stmt = $pdo->prepare("INSERT INTO group_members (group_id, user_id, role) VALUES (?, ?, 'member')");
-                $stmt->execute([$target_group_id, $user_id]);
-                
-                echo json_encode(['success' => true, 'message' => 'Joined group successfully!']);
-                exit;
-                
-            case 'leave_group':
-                if (!$group_id) throw new Exception("Invalid group.");
-                
+            }
+        }
+        
+        if (isset($_POST['leave_group'])) {
+            if (!$group_id) {
+                $errorMessage = "Invalid group.";
+            } else {
                 $stmt = $pdo->prepare("SELECT role FROM group_members WHERE group_id = ? AND user_id = ?");
                 $stmt->execute([$group_id, $user_id]);
                 $member = $stmt->fetch();
                 if (!$member) {
-                    throw new Exception("You are not a member of this group.");
-                }
-                if ($member['role'] === 'admin') {
+                    $errorMessage = "You are not a member of this group.";
+                } else if ($member['role'] === 'admin') {
                     $stmt = $pdo->prepare("SELECT COUNT(*) as admin_count FROM group_members WHERE group_id = ? AND role = 'admin' AND user_id != ?");
                     $stmt->execute([$group_id, $user_id]);
                     $count = $stmt->fetch()['admin_count'];
                     if ($count === 0) {
-                        throw new Exception("You cannot leave. You are the only admin.");
+                        $errorMessage = "You cannot leave. You are the only admin.";
+                    } else {
+                        $stmt = $pdo->prepare("DELETE FROM group_members WHERE group_id = ? AND user_id = ?");
+                        $stmt->execute([$group_id, $user_id]);
+                        $successMessage = "Left group successfully.";
+                        header("Location: group.php");
+                        exit;
                     }
+                } else {
+                    $stmt = $pdo->prepare("DELETE FROM group_members WHERE group_id = ? AND user_id = ?");
+                    $stmt->execute([$group_id, $user_id]);
+                    $successMessage = "Left group successfully.";
+                    header("Location: group.php");
+                    exit;
                 }
-                
-                $stmt = $pdo->prepare("DELETE FROM group_members WHERE group_id = ? AND user_id = ?");
-                $stmt->execute([$group_id, $user_id]);
-                
-                echo json_encode(['success' => true, 'message' => 'Left group successfully.']);
-                exit;
-                
-            case 'remove_member':
-                if (!$group_id) throw new Exception("Invalid group.");
-                
+            }
+        }
+        
+        if (isset($_POST['remove_member'])) {
+            if (!$group_id) {
+                $errorMessage = "Invalid group.";
+            } else {
                 $target_user_id = intval($_POST['user_id'] ?? 0);
                 if ($target_user_id == $user_id) {
-                    throw new Exception("Use 'leave_group' to leave.");
+                    $errorMessage = "Use 'leave_group' to leave.";
+                } else {
+                    $stmt = $pdo->prepare("SELECT role FROM group_members WHERE group_id = ? AND user_id = ?");
+                    $stmt->execute([$group_id, $user_id]);
+                    $currentUser = $stmt->fetch();
+                    if (!$currentUser || $currentUser['role'] !== 'admin') {
+                        $errorMessage = "Only admins can remove members.";
+                    } else {
+                        $stmt = $pdo->prepare("SELECT id FROM group_members WHERE group_id = ? AND user_id = ?");
+                        $stmt->execute([$group_id, $target_user_id]);
+                        if (!$stmt->fetch()) {
+                            $errorMessage = "User is not a member of this group.";
+                        } else {
+                            $stmt = $pdo->prepare("DELETE FROM group_members WHERE group_id = ? AND user_id = ?");
+                            $stmt->execute([$group_id, $target_user_id]);
+                            $successMessage = "Member removed.";
+                            header("Location: group.php?group=" . $group_id);
+                            exit;
+                        }
+                    }
                 }
-                
-                $stmt = $pdo->prepare("SELECT role FROM group_members WHERE group_id = ? AND user_id = ?");
-                $stmt->execute([$group_id, $user_id]);
-                $currentUser = $stmt->fetch();
-                if (!$currentUser || $currentUser['role'] !== 'admin') {
-                    throw new Exception("Only admins can remove members.");
-                }
-                
-                $stmt = $pdo->prepare("SELECT id FROM group_members WHERE group_id = ? AND user_id = ?");
-                $stmt->execute([$group_id, $target_user_id]);
-                if (!$stmt->fetch()) {
-                    throw new Exception("User is not a member of this group.");
-                }
-                
-                $stmt = $pdo->prepare("DELETE FROM group_members WHERE group_id = ? AND user_id = ?");
-                $stmt->execute([$group_id, $target_user_id]);
-                
-                echo json_encode(['success' => true, 'message' => 'Member removed.']);
-                exit;
-                
-            case 'get_latest_messages':
-                if (!$group_id) throw new Exception("No group selected.");
-                
-                $last_message_id = intval($_POST['last_id'] ?? 0);
-                
-                $stmt = $pdo->prepare("
-                    SELECT gm.*, u.name, u.picture 
-                    FROM group_messages gm
-                    JOIN users u ON gm.sender_id = u.id
-                    WHERE gm.group_id = ? AND gm.id > ?
-                    ORDER BY gm.sent_at ASC
-                ");
-                $stmt->execute([$group_id, $last_message_id]);
-                $newMessages = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                
-                echo json_encode(['success' => true, 'messages' => $newMessages]);
-                exit;
+            }
         }
     } catch (Exception $e) {
-        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-        exit;
+        $errorMessage = $e->getMessage();
     }
 }
 
@@ -255,60 +253,23 @@ if ($group_id) {
             success: "#10B981",
             danger: "#EF4444",
             warning: "#F59E0B",
-            accent: "#F97316" // Vibrant orange for CTAs
-          },
-          animation: {
-            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            'slide-up': 'slideUp 0.3s ease-out',
-            'fade-in': 'fadeIn 0.2s ease-out'
-          },
-          keyframes: {
-            slideUp: {
-              '0%': { transform: 'translateY(20px)', opacity: '0' },
-              '100%': { transform: 'translateY(0)', opacity: '1' }
-            },
-            fadeIn: {
-              '0%': { opacity: '0' },
-              '100%': { opacity: '1' }
-            }
+            accent: "#F97316"
           }
         }
       }
     };
   </script>
   <style>
-    @keyframes slideUp {
-      0% { transform: translateY(20px); opacity: 0; }
-      100% { transform: translateY(0); opacity: 1; }
+    /* Mobile-First Optimizations */
+    .mobile-message {
+      max-width: 85% !important;
     }
-    @keyframes fadeIn {
-      0% { opacity: 0; }
-      100% { opacity: 1; }
+    .mobile-full-height {
+      height: calc(100vh - 8rem); /* Account for header and input */
     }
-    .message-bubble {
-      transition: all 0.2s ease;
-      animation: slideUp 0.3s ease-out;
-    }
-    .message-bubble:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-    }
-    #messages-container {
-      scroll-behavior: smooth;
-    }
-    .sidebar-item {
-      transition: all 0.2s ease;
-    }
-    .sidebar-item:hover {
-      transform: translateX(4px);
-    }
-    /* Mobile Optimizations */
-    @media (max-width: 768px) {
+    @media (min-width: 768px) {
       .mobile-full-height {
-        height: calc(100vh - 4rem); /* Account for header */
-      }
-      .message-bubble {
-        max-width: 85% !important;
+        height: auto;
       }
     }
   </style>
@@ -318,17 +279,32 @@ if ($group_id) {
   <!-- Header -->
   <header class="bg-gray-800/50 backdrop-blur-sm p-3 flex items-center justify-between shadow-lg">
     <div class="flex items-center space-x-3">
-      <button id="toggle-sidebar" class="p-2 rounded-full hover:bg-gray-700 transition md:hidden">
-        <i class="fas fa-bars text-xl text-gray-300"></i>
-      </button>
       <i class="fas fa-users text-2xl text-brand"></i>
-      <h1 class="text-lg font-bold truncate max-w-xs"><?= $group_id ? htmlspecialchars($group['name']) : "Groups" ?></h1>
+      <h1 class="text-lg font-bold truncate"><?= $group_id ? htmlspecialchars($group['name']) : "Groups" ?></h1>
     </div>
     <div class="flex items-center space-x-2">
       <?php if ($group_id): ?>
-        <button id="members-btn" class="p-2 rounded-full hover:bg-gray-700 transition">
-          <i class="fas fa-users text-gray-300"></i>
-        </button>
+        <form method="POST" class="inline">
+          <input type="hidden" name="group_id" value="<?= $group_id ?>">
+          <?php 
+          $isMember = false;
+          foreach ($groupMembers as $member) {
+              if ($member['user_id'] == $user_id) {
+                  $isMember = true;
+                  break;
+              }
+          }
+          ?>
+          <?php if ($isMember): ?>
+            <button type="submit" name="leave_group" class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white text-xs rounded transition">
+              <i class="fas fa-sign-out-alt mr-1"></i> Leave Group
+            </button>
+          <?php else: ?>
+            <button type="submit" name="join_group" class="px-3 py-1 bg-brand hover:bg-purple-600 text-white text-xs rounded transition">
+              <i class="fas fa-user-plus mr-1"></i> Join Group
+            </button>
+          <?php endif; ?>
+        </form>
       <?php endif; ?>
       <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-gray-700 transition">
         <i id="theme-icon" class="fas fa-moon text-yellow-300"></i>
@@ -337,14 +313,15 @@ if ($group_id) {
   </header>
 
   <div class="flex flex-1 overflow-hidden">
-    <!-- Groups Sidebar -->
-    <aside id="sidebar" class="w-72 md:w-80 lg:w-80 bg-gray-800/30 backdrop-blur-sm border-r border-gray-700/50 flex-shrink-0 transition-transform duration-300 ease-in-out -translate-x-full md:translate-x-0">
+    <!-- Groups Sidebar (Collapsible on Mobile) -->
+    <aside class="w-64 bg-gray-800/30 backdrop-blur-sm border-r border-gray-700/50 flex-shrink-0 hidden md:block">
       <div class="p-4 flex flex-col h-full">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-lg font-semibold flex items-center">
             <i class="fas fa-comments mr-2"></i> Your Groups
           </h2>
-          <button onclick="openCreateGroupModal()" class="text-brand hover:text-purple-300 transition">
+          <!-- Create Group Button -->
+          <button onclick="document.getElementById('create-group-modal').classList.remove('hidden')" class="text-brand hover:text-purple-300 transition">
             <i class="fas fa-plus"></i>
           </button>
         </div>
@@ -356,7 +333,7 @@ if ($group_id) {
           <?php else: ?>
             <?php foreach ($groups as $g): ?>
               <a href="group.php?group=<?= $g['id'] ?>" 
-                 class="sidebar-item block p-3 rounded-lg hover:bg-gray-700/50 transition <?= $g['id'] == $group_id ? 'bg-brand/20 border-l-4 border-brand' : '' ?>">
+                 class="block p-3 rounded-lg hover:bg-gray-700/50 transition <?= $g['id'] == $group_id ? 'bg-brand/20 border-l-4 border-brand' : '' ?>">
                 <div class="flex items-center">
                   <?php if ($g['image']): ?>
                     <img src="<?= htmlspecialchars($g['image']) ?>" alt="<?= htmlspecialchars($g['name']) ?>" class="w-10 h-10 rounded-full mr-3 object-cover">
@@ -396,9 +373,12 @@ if ($group_id) {
                     <p class="text-[10px] text-gray-400"><?= $pg['member_count'] ?> members</p>
                   </div>
                 </div>
-                <button onclick="joinPublicGroup(<?= $pg['id'] ?>)" class="opacity-0 group-hover:opacity-100 transition-opacity bg-accent hover:bg-orange-500 text-white text-xs py-1 px-2 rounded">
-                  Join
-                </button>
+                <form method="POST" class="inline">
+                  <input type="hidden" name="group_id" value="<?= $pg['id'] ?>">
+                  <button type="submit" name="join_group" class="opacity-0 group-hover:opacity-100 transition-opacity bg-accent hover:bg-orange-500 text-white text-xs py-1 px-2 rounded">
+                    Join
+                  </button>
+                </form>
               </div>
             <?php endforeach; ?>
           </div>
@@ -411,35 +391,37 @@ if ($group_id) {
     <main class="flex-1 flex flex-col">
       <?php if (!$group_id): ?>
         <!-- Public Groups Discovery Page -->
-        <div id="public-groups" class="flex-1 p-4 md:p-6 overflow-y-auto">
+        <div id="public-groups" class="flex-1 p-4 overflow-y-auto">
           <div class="max-w-4xl mx-auto">
-            <div class="text-center mb-8">
-              <h1 class="text-2xl md:text-3xl font-bold mb-2">Discover Communities</h1>
-              <p class="text-gray-300">Join groups that match your interests and start collaborating.</p>
+            <div class="text-center mb-6">
+              <h1 class="text-2xl font-bold mb-2">Discover Communities</h1>
+              <p class="text-gray-300">Join groups that match your interests.</p>
             </div>
             
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <?php foreach ($publicGroups as $pg): ?>
-                <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-5 hover:bg-gray-800/70 transition-all duration-300 transform hover:-translate-y-1 shadow-lg">
-                  <div class="flex items-center mb-4">
+                <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 hover:bg-gray-800/70 transition-all duration-300 transform hover:-translate-y-1 shadow-lg">
+                  <div class="flex items-center mb-3">
                     <?php if ($pg['image']): ?>
-                      <img src="<?= htmlspecialchars($pg['image']) ?>" alt="<?= htmlspecialchars($pg['name']) ?>" class="w-16 h-16 rounded-xl object-cover">
+                      <img src="<?= htmlspecialchars($pg['image']) ?>" alt="<?= htmlspecialchars($pg['name']) ?>" class="w-14 h-14 rounded-xl object-cover">
                     <?php else: ?>
-                      <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                        <span class="text-2xl font-bold text-white"><?= strtoupper(substr($pg['name'], 0, 1)) ?></span>
+                      <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                        <span class="text-xl font-bold text-white"><?= strtoupper(substr($pg['name'], 0, 1)) ?></span>
                       </div>
                     <?php endif; ?>
-                    <div class="ml-4">
-                      <h3 class="font-bold text-lg"><?= htmlspecialchars($pg['name']) ?></h3>
+                    <div class="ml-3">
+                      <h3 class="font-bold"><?= htmlspecialchars($pg['name']) ?></h3>
                       <p class="text-sm text-gray-400">by <?= htmlspecialchars($pg['creator_name']) ?></p>
                     </div>
                   </div>
-                  <p class="text-gray-300 text-sm mb-4">A vibrant community for coders and enthusiasts.</p>
-                  <div class="flex items-center justify-between">
+                  <div class="flex items-center justify-between mt-4">
                     <span class="text-sm text-gray-400"><i class="fas fa-users mr-1"></i> <?= $pg['member_count'] ?> members</span>
-                    <button onclick="joinPublicGroup(<?= $pg['id'] ?>)" class="bg-brand hover:bg-purple-600 text-white py-2 px-4 rounded-lg font-medium transition transform hover:scale-105 text-sm">
-                      Join Group
-                    </button>
+                    <form method="POST" class="inline">
+                      <input type="hidden" name="group_id" value="<?= $pg['id'] ?>">
+                      <button type="submit" name="join_group" class="bg-brand hover:bg-purple-600 text-white py-1.5 px-3 rounded-lg font-medium transition text-sm">
+                        Join Group
+                      </button>
+                    </form>
                   </div>
                 </div>
               <?php endforeach; ?>
@@ -448,7 +430,7 @@ if ($group_id) {
         </div>
       <?php else: ?>
         <!-- Group Chat Interface -->
-        <div class="bg-gray-800/50 backdrop-blur-sm p-3 md:p-4 border-b border-gray-700/50 flex items-center justify-between">
+        <div class="bg-gray-800/50 backdrop-blur-sm p-3 border-b border-gray-700/50 flex items-center justify-between">
           <div class="flex items-center space-x-3">
             <?php if ($group['image']): ?>
               <img src="<?= htmlspecialchars($group['image']) ?>" alt="<?= htmlspecialchars($group['name']) ?>" class="w-12 h-12 rounded-full object-cover">
@@ -458,36 +440,21 @@ if ($group_id) {
               </div>
             <?php endif; ?>
             <div>
-              <h2 class="font-bold text-lg"><?= htmlspecialchars($group['name']) ?></h2>
+              <h2 class="font-bold"><?= htmlspecialchars($group['name']) ?></h2>
               <p class="text-xs text-gray-400">by <?= htmlspecialchars($group['creator_name']) ?></p>
             </div>
           </div>
           <div class="flex space-x-2">
-            <?php 
-            $isMember = false;
-            $userRole = '';
-            foreach ($groupMembers as $member) {
-                if ($member['user_id'] == $user_id) {
-                    $isMember = true;
-                    $userRole = $member['role'];
-                    break;
-                }
-            }
-            ?>
             <?php if ($isMember): ?>
-              <button onclick="leaveGroup()" class="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-white text-xs rounded transition flex items-center">
-                <i class="fas fa-sign-out-alt mr-1"></i> Leave
-              </button>
-            <?php else: ?>
-              <button onclick="joinGroup()" class="px-3 py-1.5 bg-brand hover:bg-purple-600 text-white text-xs rounded transition flex items-center">
-                <i class="fas fa-user-plus mr-1"></i> Join
-              </button>
+              <a href="group.php?group=<?= $group_id ?>" class="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs rounded transition flex items-center">
+                <i class="fas fa-eye mr-1"></i> View Group
+              </a>
             <?php endif; ?>
           </div>
         </div>
 
         <!-- Messages Area -->
-        <div id="messages-container" class="flex-1 p-3 md:p-4 space-y-4 overflow-y-auto mobile-full-height">
+        <div id="messages-container" class="flex-1 p-3 space-y-4 overflow-y-auto mobile-full-height">
           <?php if (empty($messages)): ?>
             <div class="text-center py-12 text-gray-400">
               <i class="fas fa-comment-slash text-4xl mb-4"></i>
@@ -498,15 +465,15 @@ if ($group_id) {
             </div>
           <?php else: ?>
             <?php foreach ($messages as $msg): ?>
-              <div class="flex <?= $msg['sender_id'] == $user_id ? 'justify-end' : 'justify-start' ?>" data-message-id="<?= $msg['id'] ?>">
-                <div class="message-bubble max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg px-4 py-3 rounded-2xl shadow-md
+              <div class="flex <?= $msg['sender_id'] == $user_id ? 'justify-end' : 'justify-start' ?>">
+                <div class="mobile-message max-w-xs sm:max-w-sm md:max-w-md px-4 py-3 rounded-2xl shadow-md
                             <?= $msg['sender_id'] == $user_id ? 'bg-brand text-white' : 'bg-gray-700/80 backdrop-blur-sm text-gray-100' ?>">
                   <div class="flex items-center gap-2 mb-1">
                     <img src="<?= htmlspecialchars($msg['picture'] ?? '/assets/img/default-avatar.png') ?>" 
                          alt="Avatar" class="w-8 h-8 rounded-full border-2 <?= $msg['sender_id'] == $user_id ? 'border-white' : 'border-gray-500' ?> object-cover">
                     <span class="font-semibold text-sm"><?= htmlspecialchars($msg['name']) ?></span>
                   </div>
-                  <p class="text-sm md:text-base leading-relaxed break-words"><?= htmlspecialchars($msg['message']) ?></p>
+                  <p class="text-sm leading-relaxed break-words"><?= htmlspecialchars($msg['message']) ?></p>
                   <span class="text-xs text-gray-300 block mt-1"><?= date("g:i A", strtotime($msg['sent_at'])) ?></span>
                 </div>
               </div>
@@ -515,10 +482,10 @@ if ($group_id) {
         </div>
 
         <!-- Message Input -->
-        <form id="message-form" class="p-3 md:p-4 bg-gray-800/50 backdrop-blur-sm border-t border-gray-700/50">
+        <form id="message-form" class="p-3 bg-gray-800/50 backdrop-blur-sm border-t border-gray-700/50">
           <div class="flex items-center space-x-2">
             <input type="text" id="message-input" placeholder="<?= $isMember ? 'Type a message...' : 'Join group to chat...' ?>" 
-                   class="flex-1 bg-gray-700/50 border border-gray-600 rounded-full px-4 py-3 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand transition text-sm md:text-base" 
+                   class="flex-1 bg-gray-700/50 border border-gray-600 rounded-full px-4 py-3 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand transition text-sm" 
                    <?= $isMember ? 'required' : 'disabled' ?>>
             <button type="submit" id="send-btn" 
                     class="bg-brand hover:bg-purple-600 text-white p-3 rounded-full transition transform hover:scale-110 shadow-lg <?= $isMember ? '' : 'opacity-50 cursor-not-allowed' ?>" 
@@ -531,47 +498,29 @@ if ($group_id) {
     </main>
   </div>
 
-  <!-- Members Modal -->
-  <div id="members-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
-    <div class="bg-gray-800 rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl animate-slide-up">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold">Members (<?= count($groupMembers) ?>)</h3>
-        <button onclick="closeMembersModal()" class="text-gray-400 hover:text-white">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      <div class="max-h-96 overflow-y-auto space-y-3">
-        <?php foreach ($groupMembers as $member): ?>
-          <div class="flex items-center justify-between p-3 bg-gray-700/50 rounded-lg">
-            <div class="flex items-center space-x-3">
-              <img src="<?= htmlspecialchars($member['picture'] ?? '/assets/img/default-avatar.png') ?>" 
-                   alt="<?= htmlspecialchars($member['name']) ?>" class="w-10 h-10 rounded-full object-cover">
-              <div>
-                <p class="font-medium"><?= htmlspecialchars($member['name']) ?></p>
-                <p class="text-xs text-gray-400"><?= $member['role'] === 'admin' ? 'Admin' : 'Member' ?></p>
-              </div>
-            </div>
-            <?php if ($userRole === 'admin' && $member['user_id'] != $user_id): ?>
-              <button onclick="removeMember(<?= $member['user_id'] ?>)" class="text-danger hover:text-red-400 p-1 rounded">
-                <i class="fas fa-trash"></i>
-              </button>
-            <?php endif; ?>
-          </div>
-        <?php endforeach; ?>
-      </div>
-    </div>
-  </div>
-
   <!-- Create Group Modal -->
   <div id="create-group-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
-    <div class="bg-gray-800 rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl animate-slide-up">
+    <div class="bg-gray-800 rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-xl font-bold">Create New Group</h3>
-        <button onclick="closeCreateGroupModal()" class="text-gray-400 hover:text-white">
+        <button onclick="document.getElementById('create-group-modal').classList.add('hidden')" class="text-gray-400 hover:text-white">
           <i class="fas fa-times"></i>
         </button>
       </div>
-      <form id="create-group-form" enctype="multipart/form-data" class="space-y-4">
+      
+      <?php if ($errorMessage): ?>
+        <div class="mb-4 p-3 bg-red-900/50 text-red-300 rounded-lg text-sm">
+          <i class="fas fa-exclamation-circle mr-2"></i><?= htmlspecialchars($errorMessage) ?>
+        </div>
+      <?php endif; ?>
+      
+      <?php if ($successMessage): ?>
+        <div class="mb-4 p-3 bg-green-900/50 text-green-300 rounded-lg text-sm">
+          <i class="fas fa-check-circle mr-2"></i><?= htmlspecialchars($successMessage) ?>
+        </div>
+      <?php endif; ?>
+      
+      <form method="POST" enctype="multipart/form-data" class="space-y-4">
         <div>
           <label class="block text-sm font-medium mb-1">Group Name</label>
           <input type="text" name="name" placeholder="e.g., Python Masters" required
@@ -583,11 +532,12 @@ if ($group_id) {
                  class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand file:text-white hover:file:bg-purple-600">
         </div>
         <div class="flex space-x-3 pt-2">
-          <button type="button" onclick="closeCreateGroupModal()"
+          <button type="button" 
+                  onclick="document.getElementById('create-group-modal').classList.add('hidden')"
                   class="flex-1 py-2 px-4 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition">
             Cancel
           </button>
-          <button type="submit"
+          <button type="submit" name="create_group"
                   class="flex-1 py-2 px-4 bg-brand hover:bg-purple-600 text-white rounded-lg font-semibold transition transform hover:scale-105">
             Create Group
           </button>
@@ -596,251 +546,7 @@ if ($group_id) {
     </div>
   </div>
 
-  <!-- Toast Notification -->
-  <div id="toast" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg hidden z-50 animate-fade-in">
-  </div>
-
   <script>
-    let currentGroupId = <?= $group_id ?>;
-    let isMember = <?= $isMember ? 'true' : 'false' ?>;
-    let userRole = '<?= $userRole ?>';
-    let lastMessageId = <?= !empty($messages) ? end($messages)['id'] : 0 ?>;
-    let pollingInterval = null;
-
-    // AJAX Functions
-    async function ajaxRequest(action, formData = new FormData()) {
-        formData.append('action', action);
-        
-        const response = await fetch('group.php' + (currentGroupId ? '?group=' + currentGroupId : ''), {
-            method: 'POST',
-            body: formData
-        });
-        return await response.json();
-    }
-
-    function showToast(message, isError = false) {
-        const toast = document.getElementById('toast');
-        toast.textContent = message;
-        toast.className = 'fixed bottom-5 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-lg shadow-lg z-50 animate-fade-in ' + 
-                         (isError ? 'bg-danger' : 'bg-gray-800 text-white');
-        toast.classList.remove('hidden');
-        
-        setTimeout(() => {
-            toast.classList.add('hidden');
-        }, 3000);
-    }
-
-    // Optimistic UI Updates
-    function appendMessage(messageData) {
-        const container = document.getElementById('messages-container');
-        const isOwnMessage = messageData.sender_id == <?= $user_id ?>;
-        
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`;
-        messageDiv.dataset.messageId = messageData.id;
-        
-        messageDiv.innerHTML = `
-            <div class="message-bubble max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg px-4 py-3 rounded-2xl shadow-md
-                        ${isOwnMessage ? 'bg-brand text-white' : 'bg-gray-700/80 backdrop-blur-sm text-gray-100'}">
-              <div class="flex items-center gap-2 mb-1">
-                <img src="${messageData.picture || '/assets/img/default-avatar.png'}" 
-                     alt="Avatar" class="w-8 h-8 rounded-full border-2 ${isOwnMessage ? 'border-white' : 'border-gray-500'} object-cover">
-                <span class="font-semibold text-sm">${messageData.name}</span>
-              </div>
-              <p class="text-sm md:text-base leading-relaxed break-words">${messageData.message}</p>
-              <span class="text-xs text-gray-300 block mt-1">${new Date(messageData.sent_at).toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'})}</span>
-            </div>
-        `;
-        
-        container.appendChild(messageDiv);
-        scrollToBottom();
-    }
-
-    // Real-time Polling
-    async function pollForNewMessages() {
-        if (!currentGroupId || !isMember) return;
-        
-        try {
-            const formData = new FormData();
-            formData.append('last_id', lastMessageId);
-            
-            const result = await ajaxRequest('get_latest_messages', formData);
-            if (result.success && result.messages.length > 0) {
-                result.messages.forEach(msg => {
-                    appendMessage(msg);
-                    lastMessageId = Math.max(lastMessageId, msg.id);
-                });
-            }
-        } catch (error) {
-            console.error('Polling error:', error);
-        }
-    }
-
-    // Group Actions
-    document.getElementById('create-group-form').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        
-        try {
-            const result = await ajaxRequest('create_group', formData);
-            if (result.success) {
-                showToast(result.message);
-                closeCreateGroupModal();
-                window.location.href = 'group.php?group=' + result.group_id;
-            } else {
-                showToast(result.message, true);
-            }
-        } catch (error) {
-            showToast('An error occurred. Please try again.', true);
-        }
-    });
-
-    document.getElementById('message-form').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        if (!isMember) {
-            showToast('Join the group to send messages.', true);
-            return;
-        }
-        
-        const messageInput = document.getElementById('message-input');
-        const message = messageInput.value.trim();
-        if (!message) return;
-        
-        // Optimistic UI: Add message immediately
-        const tempId = 'temp-' + Date.now();
-        const tempMessage = {
-            id: tempId,
-            sender_id: <?= $user_id ?>,
-            message: message,
-            sent_at: new Date().toISOString(),
-            name: '<?= htmlspecialchars($dbUser['name']) ?>',
-            picture: '<?= htmlspecialchars($dbUser['picture']) ?>'
-        };
-        appendMessage(tempMessage);
-        messageInput.value = '';
-        
-        // Send to server
-        const formData = new FormData();
-        formData.append('message', message);
-        
-        try {
-            const result = await ajaxRequest('send_message', formData);
-            if (result.success) {
-                // Remove temp message and add real one
-                const tempDiv = document.querySelector(`[data-message-id="${tempId}"]`);
-                if (tempDiv) tempDiv.remove();
-                appendMessage(result.message_data);
-                lastMessageId = result.message_data.id;
-            } else {
-                showToast(result.message, true);
-                // Remove temp message on error
-                const tempDiv = document.querySelector(`[data-message-id="${tempId}"]`);
-                if (tempDiv) tempDiv.remove();
-            }
-        } catch (error) {
-            showToast('Failed to send message.', true);
-            const tempDiv = document.querySelector(`[data-message-id="${tempId}"]`);
-            if (tempDiv) tempDiv.remove();
-        }
-    });
-
-    async function joinGroup() {
-        if (!currentGroupId) return;
-        
-        try {
-            const result = await ajaxRequest('join_group', new FormData([['group_id', currentGroupId]]));
-            if (result.success) {
-                showToast(result.message);
-                isMember = true;
-                userRole = 'member';
-                // Start polling for new messages
-                if (pollingInterval) clearInterval(pollingInterval);
-                pollingInterval = setInterval(pollForNewMessages, 2000);
-                // Reload to update UI
-                location.reload();
-            } else {
-                showToast(result.message, true);
-            }
-        } catch (error) {
-            showToast('Failed to join group.', true);
-        }
-    }
-
-    async function joinPublicGroup(groupId) {
-        try {
-            const result = await ajaxRequest('join_group', new FormData([['group_id', groupId]]));
-            if (result.success) {
-                showToast(result.message);
-                // Redirect to the new group
-                window.location.href = 'group.php?group=' + groupId;
-            } else {
-                showToast(result.message, true);
-            }
-        } catch (error) {
-            showToast('Failed to join group.', true);
-        }
-    }
-
-    async function leaveGroup() {
-        if (!confirm('Are you sure you want to leave this group?')) return;
-        
-        try {
-            const result = await ajaxRequest('leave_group');
-            if (result.success) {
-                showToast(result.message);
-                isMember = false;
-                if (pollingInterval) clearInterval(pollingInterval);
-                location.reload();
-            } else {
-                showToast(result.message, true);
-            }
-        } catch (error) {
-            showToast('Failed to leave group.', true);
-        }
-    }
-
-    async function removeMember(userId) {
-        if (!confirm('Remove this user from the group?')) return;
-        
-        const formData = new FormData();
-        formData.append('user_id', userId);
-        
-        try {
-            const result = await ajaxRequest('remove_member', formData);
-            if (result.success) {
-                showToast(result.message);
-                location.reload();
-            } else {
-                showToast(result.message, true);
-            }
-        } catch (error) {
-            showToast('Failed to remove member.', true);
-        }
-    }
-
-    // Modals
-    function openCreateGroupModal() {
-        document.getElementById('create-group-modal').classList.remove('hidden');
-    }
-    function closeCreateGroupModal() {
-        document.getElementById('create-group-modal').classList.add('hidden');
-    }
-
-    function openMembersModal() {
-        document.getElementById('members-modal').classList.remove('hidden');
-    }
-    function closeMembersModal() {
-        document.getElementById('members-modal').classList.add('hidden');
-    }
-
-    // Event Listeners
-    document.getElementById('members-btn').addEventListener('click', openMembersModal);
-    document.getElementById('toggle-sidebar').addEventListener('click', function() {
-        const sidebar = document.getElementById('sidebar');
-        sidebar.classList.toggle('-translate-x-full');
-    });
-
     // Theme Toggle
     function toggleTheme() {
         document.documentElement.classList.toggle('dark');
@@ -864,14 +570,55 @@ if ($group_id) {
     }
     scrollToBottom();
 
-    // Start polling if in a group and member
-    if (currentGroupId && isMember) {
-        pollingInterval = setInterval(pollForNewMessages, 2000);
-    }
-
-    // Cleanup on unload
-    window.addEventListener('beforeunload', () => {
-        if (pollingInterval) clearInterval(pollingInterval);
+    // Send Message with AJAX (ONLY AJAX in the entire app)
+    document.getElementById('message-form')?.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const messageInput = document.getElementById('message-input');
+        const message = messageInput.value.trim();
+        if (!message) return;
+        
+        const formData = new FormData();
+        formData.append('action', 'send_message');
+        formData.append('message', message);
+        
+        try {
+            const response = await fetch('group.php?group=<?= $group_id ?>', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            
+            if (result.success) {
+                // Append new message to UI
+                const container = document.getElementById('messages-container');
+                const isOwnMessage = result.message_data.sender_id == <?= $user_id ?>;
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`;
+                
+                messageDiv.innerHTML = `
+                    <div class="mobile-message max-w-xs sm:max-w-sm md:max-w-md px-4 py-3 rounded-2xl shadow-md
+                                ${isOwnMessage ? 'bg-brand text-white' : 'bg-gray-700/80 backdrop-blur-sm text-gray-100'}">
+                      <div class="flex items-center gap-2 mb-1">
+                        <img src="${result.message_data.picture || '/assets/img/default-avatar.png'}" 
+                             alt="Avatar" class="w-8 h-8 rounded-full border-2 ${isOwnMessage ? 'border-white' : 'border-gray-500'} object-cover">
+                        <span class="font-semibold text-sm">${result.message_data.name}</span>
+                      </div>
+                      <p class="text-sm leading-relaxed break-words">${result.message_data.message}</p>
+                      <span class="text-xs text-gray-300 block mt-1">${new Date().toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'})}</span>
+                    </div>
+                `;
+                
+                container.appendChild(messageDiv);
+                messageInput.value = '';
+                scrollToBottom();
+            } else {
+                alert('Error: ' + result.message);
+            }
+        } catch (error) {
+            alert('Failed to send message.');
+        }
     });
   </script>
 </body>
