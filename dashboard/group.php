@@ -276,41 +276,45 @@ if ($group_id) {
 </head>
 <body class="bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 text-gray-100 flex flex-col min-h-screen">
 
-  <!-- Header -->
-  <header class="bg-gray-800/50 backdrop-blur-sm p-3 flex items-center justify-between shadow-lg">
-    <div class="flex items-center space-x-3">
-      <i class="fas fa-users text-2xl text-brand"></i>
-      <h1 class="text-lg font-bold truncate"><?= $group_id ? htmlspecialchars($group['name']) : "Groups" ?></h1>
-    </div>
-    <div class="flex items-center space-x-2">
-      <?php if ($group_id): ?>
-        <form method="POST" class="inline">
-          <input type="hidden" name="group_id" value="<?= $group_id ?>">
-          <?php 
-          $isMember = false;
-          foreach ($groupMembers as $member) {
-              if ($member['user_id'] == $user_id) {
-                  $isMember = true;
-                  break;
-              }
-          }
-          ?>
-          <?php if ($isMember): ?>
-            <button type="submit" name="leave_group" class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white text-xs rounded transition">
-              <i class="fas fa-sign-out-alt mr-1"></i> Leave Group
-            </button>
-          <?php else: ?>
-            <button type="submit" name="join_group" class="px-3 py-1 bg-brand hover:bg-purple-600 text-white text-xs rounded transition">
-              <i class="fas fa-user-plus mr-1"></i> Join Group
-            </button>
-          <?php endif; ?>
-        </form>
-      <?php endif; ?>
-      <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-gray-700 transition">
-        <i id="theme-icon" class="fas fa-moon text-yellow-300"></i>
-      </button>
-    </div>
-  </header>
+<!-- Header -->
+<header class="bg-gray-800/50 backdrop-blur-sm p-3 flex items-center justify-between shadow-lg">
+  <div class="flex items-center space-x-3">
+    <!-- SIDEBAR TOGGLE BUTTON (Mobile Only) -->
+    <button id="toggle-sidebar" class="p-2 rounded-full hover:bg-gray-700 transition md:hidden">
+      <i class="fas fa-bars text-xl text-gray-300"></i>
+    </button>
+    <i class="fas fa-users text-2xl text-brand"></i>
+    <h1 class="text-lg font-bold truncate"><?= $group_id ? htmlspecialchars($group['name']) : "Groups" ?></h1>
+  </div>
+  <div class="flex items-center space-x-2">
+    <?php if ($group_id): ?>
+      <form method="POST" class="inline">
+        <input type="hidden" name="group_id" value="<?= $group_id ?>">
+        <?php 
+        $isMember = false;
+        foreach ($groupMembers as $member) {
+            if ($member['user_id'] == $user_id) {
+                $isMember = true;
+                break;
+            }
+        }
+        ?>
+        <?php if ($isMember): ?>
+          <button type="submit" name="leave_group" class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white text-xs rounded transition">
+            <i class="fas fa-sign-out-alt mr-1"></i> Leave Group
+          </button>
+        <?php else: ?>
+          <button type="submit" name="join_group" class="px-3 py-1 bg-brand hover:bg-purple-600 text-white text-xs rounded transition">
+            <i class="fas fa-user-plus mr-1"></i> Join Group
+          </button>
+        <?php endif; ?>
+      </form>
+    <?php endif; ?>
+    <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-gray-700 transition">
+      <i id="theme-icon" class="fas fa-moon text-yellow-300"></i>
+    </button>
+  </div>
+</header>
 
   <div class="flex flex-1 overflow-hidden">
     <!-- Groups Sidebar (Collapsible on Mobile) -->
