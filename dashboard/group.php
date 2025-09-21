@@ -318,8 +318,8 @@ if ($group_id) {
 
   <div class="flex flex-1 overflow-hidden">
     <!-- Groups Sidebar (Collapsible on Mobile) -->
-<aside id="sidebar" class="w-64 bg-gray-800/30 backdrop-blur-sm border-r border-gray-700/50 flex-shrink-0 transition-transform duration-300 ease-in-out -translate-x-full md:translate-x-0 md:block fixed md:static inset-y-0 left-0 z-20 md:z-auto"> 
-    <div class="p-4 flex flex-col h-full">
+    <aside class="w-64 bg-gray-800/30 backdrop-blur-sm border-r border-gray-700/50 flex-shrink-0 hidden md:block">
+      <div class="p-4 flex flex-col h-full">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-lg font-semibold flex items-center">
             <i class="fas fa-comments mr-2"></i> Your Groups
@@ -549,7 +549,19 @@ if ($group_id) {
       </form>
     </div>
   </div>
-
+<script>
+  document.getElementById('toggle-sidebar').addEventListener('click', function() {
+    const sidebar = document.getElementById('sidebar');
+    // Check if sidebar is hidden
+    if (sidebar.classList.contains('-translate-x-full')) {
+      sidebar.classList.remove('-translate-x-full');
+      sidebar.classList.add('translate-x-0');
+    } else {
+      sidebar.classList.add('-translate-x-full');
+      sidebar.classList.remove('translate-x-0');
+    }
+  });
+</script>
   <script>
     // Theme Toggle
     function toggleTheme() {
