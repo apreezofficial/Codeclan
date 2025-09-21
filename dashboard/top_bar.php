@@ -230,5 +230,42 @@ if (!$dbUser) {
       }
     });
   </script>
+    <!-- Ad Modal -->
+<div id="adModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 max-w-sm w-full mx-4 fade-in">
+    <h2 class="text-xl font-bold text-purple-600 dark:text-purple-400 mb-3">Visit ProForms!</h2>
+    <p class="text-gray-600 dark:text-gray-300 mb-4">Boost your productivity with ProForms. Try it now and get instant form submissions on your web Forms!!!</p>
+    <button onclick="closeAd()" class="w-full px-4 py-2 bg-purple-600 dark:bg-purple-700 text-white rounded-lg hover:bg-purple-700 dark:hover:bg-purple-800 transition">Close</button>
+  </div>
+</div>
+
+<script>
+function manageAdDisplay() {
+  let visitCount = parseInt(localStorage.getItem('visitCount')) || 0;
+  
+  // Increment visit count
+  visitCount++;
+  localStorage.setItem('visitCount', visitCount);
+
+  const shouldShowAd = visitCount === 5 || visitCount === 100 || (visitCount >= 200 && visitCount % 200 === 0);
+
+  if (shouldShowAd) {
+    const adModal = document.getElementById('adModal');
+    adModal.classList.remove('hidden');
+  }
+}
+
+// Close ad function
+function closeAd() {
+  const adModal = document.getElementById('adModal');
+  adModal.classList.add('hidden');
+}
+
+// Run on page load
+document.addEventListener('DOMContentLoaded', () => {
+  manageAdDisplay();
+  
+});
+</script>
 </body>
 </html>
