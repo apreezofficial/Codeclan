@@ -19,7 +19,7 @@
 
     <div class="flex gap-6 items-center">
       <a
-        href="#join"
+        href="./auth/"
         class="inline-block bg-[#8A2BA1] hover:bg-[#8A2BA1]/80 transition rounded-full px-8 py-3 font-semibold shadow-md text-white"
       >
         Get Started
