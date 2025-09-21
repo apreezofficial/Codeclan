@@ -1,7 +1,5 @@
 <?php
-session_start();
 include "top_bar.php";
-error_reporting(1);
 // 📊 Load user stats
 $stmt = $pdo->prepare("SELECT * FROM user_stats WHERE user_id = :uid LIMIT 1");
 $stmt->execute([":uid" => $dbUser['id']]);
