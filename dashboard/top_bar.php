@@ -16,7 +16,7 @@ $user = json_decode($_COOKIE['user'], true);
 $stmt = $pdo->prepare("SELECT * FROM users WHERE google_id = :gid LIMIT 1");
 $stmt->execute([":gid" => $user['id'] ?? '']);
 $dbUser = $stmt->fetch(PDO::FETCH_ASSOC);
-
+$user_id = $dbUser['id']; 
 if (!$dbUser) {
     setcookie("user", "", time() - 3600, "/");
     header("Location: ../auth");
