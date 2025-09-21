@@ -154,41 +154,6 @@ if (!$dbUser) {
     </div>
   </div>
 
-  <!-- Main Content -->
-  <main class="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto">
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 md:p-8 mb-8 border border-gray-200 dark:border-gray-700">
-      <h1 class="text-3xl font-bold text-gray-800 dark:text-white mb-2">Welcome back, <?php echo htmlspecialchars(explode(' ', $dbUser['name'])[0]); ?>! 👋</h1>
-      <p class="text-gray-600 dark:text-gray-300">Ready to code, play, and climb the leaderboard?</p>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="bg-gradient-to-br from-purple-500 to-indigo-600 dark:from-purple-700 dark:to-indigo-800 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
-        <div class="flex items-center justify-between">
-          <h2 class="text-xl font-bold">🏆 Leaderboard</h2>
-          <i data-lucide="trophy" class="h-8 w-8"></i>
-        </div>
-        <p class="mt-2 opacity-90">See where you rank globally.</p>
-        <a href="./leaderboard.php" class="inline-block mt-4 text-sm font-semibold underline">View Rankings →</a>
-      </div>
-      <div class="bg-gradient-to-br from-green-500 to-emerald-600 dark:from-green-700 dark:to-emerald-800 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
-        <div class="flex items-center justify-between">
-          <h2 class="text-xl font-bold">🎮 Games</h2>
-          <i data-lucide="gamepad-2" class="h-8 w-8"></i>
-        </div>
-        <p class="mt-2 opacity-90">Play games and earn XP.</p>
-        <a href="./games.php" class="inline-block mt-4 text-sm font-semibold underline">Play Now →</a>
-      </div>
-      <div class="bg-gradient-to-br from-blue-500 to-cyan-600 dark:from-blue-700 dark:to-cyan-800 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
-        <div class="flex items-center justify-between">
-          <h2 class="text-xl font-bold">💬 Chats</h2>
-          <i data-lucide="message-circle" class="h-8 w-8"></i>
-        </div>
-        <p class="mt-2 opacity-90">Chat with friends and clan members.</p>
-        <a href="./chats.php" class="inline-block mt-4 text-sm font-semibold underline">Start Chatting →</a>
-      </div>
-    </div>
-  </main>
-
   <script>
     // Initialize Lucide Icons (again for dynamic content)
     lucide.createIcons();
