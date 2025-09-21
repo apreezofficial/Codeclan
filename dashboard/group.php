@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'top_bar.php'; // Make sure this sets $pdo and $user_id
+include 'top_bar.php'; 
 
 // Initialize variables
 $group_id = isset($_GET['group']) ? intval($_GET['group']) : 0;
@@ -64,9 +64,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_group'])) {
                 header("Location: group.php?group=" . $new_group_id);
                 exit;
             } catch (Exception $e) {
-                $errorMessage = "Failed to create group. Please try again.";
-                error_log("Group Creation Error: " . $e->getMessage());
-            }
+    $errorMessage = "Failed to create group: " . $e->getMessage(); // Show message to user
+    $detailedError = "Group Creation Error: " . $e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine();
+    error_log($detailedError); // Log to server error log
+    echo "<div class='p-4 bg-red-100 text-red-800 border border-red-300 rounded mb-4'>DEBUG: " . htmlspecialchars($detailedError) . "</div>";
+ }
         }
     }
 }
