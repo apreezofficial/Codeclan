@@ -60,7 +60,7 @@ $userResults = $resultStmt->fetchAll(PDO::FETCH_GROUP|PDO::FETCH_ASSOC);
       <?php 
         $lastResult = $userResults[$game['id']][0] ?? null;
         $gameUrl = $game['id'] . '.php';
-        $isPlayable = file_exists($_SERVER['DOCUMENT_ROOT'] . $gameUrl);
+        $isPlayable = file_exists($gameUrl);
       ?>
       <div class="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden flex flex-col">
         
