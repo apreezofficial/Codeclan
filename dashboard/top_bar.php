@@ -66,15 +66,15 @@ if (!$dbUser) {
 
     <!-- Desktop Nav (Hidden on Mobile) -->
     <div class="hidden md:flex space-x-6 text-white font-medium">
-      <a href="./leaderboard.php" class="flex items-center space-x-2 hover:text-yellow-300 transition group">
+      <a href="leaderboard.php" class="flex items-center space-x-2 hover:text-yellow-300 transition group">
         <i data-lucide="trophy" class="h-5 w-5 group-hover:scale-110 transition"></i>
         <span>Leaderboard</span>
       </a>
-      <a href="./games.php" class="flex items-center space-x-2 hover:text-yellow-300 transition group">
+      <a href="games.php" class="flex items-center space-x-2 hover:text-yellow-300 transition group">
         <i data-lucide="gamepad-2" class="h-5 w-5 group-hover:scale-110 transition"></i>
         <span>Games</span>
       </a>
-      <a href="./chats.php" class="flex items-center space-x-2 hover:text-yellow-300 transition group">
+      <a href="chats.php" class="flex items-center space-x-2 hover:text-yellow-300 transition group">
         <i data-lucide="message-circle" class="h-5 w-5 group-hover:scale-110 transition"></i>
         <span>Chats</span>
       </a>
@@ -107,11 +107,11 @@ if (!$dbUser) {
               <?php echo htmlspecialchars($dbUser['email']); ?>
             </p>
           </div>
-          <a href="./profile.php" class="flex items-center px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+          <a href="profile.php" class="flex items-center px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
             <i data-lucide="user" class="mr-2 h-4 w-4"></i>
             Profile
           </a>
-          <a href="./settings.php" class="flex items-center px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+          <a href="./settings.php" class="flex items-center px-4 disabled py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
             <i data-lucide="settings" class="mr-2 h-4 w-4"></i>
             Settings
           </a>
@@ -133,15 +133,15 @@ if (!$dbUser) {
       </button>
     </div>
     <nav class="flex-1 p-4 space-y-2">
-      <a href="./leaderboard.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-purple-50 dark:hover:bg-gray-800 transition group">
+      <a href="leaderboard.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-purple-50 dark:hover:bg-gray-800 transition group">
         <i data-lucide="trophy" class="h-5 w-5 text-yellow-500 group-hover:scale-110 transition"></i>
         <span class="font-medium">Leaderboard</span>
       </a>
-      <a href="./games.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-purple-50 dark:hover:bg-gray-800 transition group">
+      <a href="games.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-purple-50 dark:hover:bg-gray-800 transition group">
         <i data-lucide="gamepad-2" class="h-5 w-5 text-green-500 group-hover:scale-110 transition"></i>
         <span class="font-medium">Games</span>
       </a>
-      <a href="./chats.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-purple-50 dark:hover:bg-gray-800 transition group">
+      <a href="chats.php" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-purple-50 dark:hover:bg-gray-800 transition group">
         <i data-lucide="message-circle" class="h-5 w-5 text-blue-500 group-hover:scale-110 transition"></i>
         <span class="font-medium">Chats</span>
       </a>
