@@ -6,7 +6,7 @@ $stmt = $pdo->query("
     SELECT u.id, u.name, u.picture, us.level, us.xp, us.games_played, us.games_won, us.rank_position
     FROM users u
     JOIN user_stats us ON u.id = us.user_id
-    ORDER BY us.rank_position ASC, us.xp DESC
+    ORDER BY us.xp ASC, us.xp DESC
 ");
 $players = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
