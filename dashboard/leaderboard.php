@@ -1,16 +1,21 @@
 <?php
 include 'top_bar.php';
 
-// Fetch leaderboard stats
+// Fetch leaderboard stats — order only by XP descending (highest XP first)
 $stmt = $pdo->query("
-    SELECT u.id, u.name, u.picture, us.level, us.xp, us.games_played, us.games_won, us.rank_position
+    SELECT u.id, u.name, u.picture, us.level, us.xp, us.games_played, us.games_won
     FROM users u
     JOIN user_stats us ON u.id = us.user_id
-    ORDER BY us.xp ASC, us.xp DESC
+    ORDER BY us.xp DESC
 ");
 $players = $stmt->fetchAll(PDO::FETCH_ASSOC);
-?>
 
+// Assign rank based purely on XP
+$rank = 1;
+foreach ($players as $index => $player) {
+    $players[$index]['rank_position'] = $rank++;
+}
+?>
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
@@ -23,9 +28,7 @@ $players = $stmt->fetchAll(PDO::FETCH_ASSOC);
       darkMode: 'class',
       theme: {
         extend: {
-          colors: {
-            brand: "#6B21A8", 
-          },
+          colors: { brand: "#6B21A8" },
         },
       },
     };
@@ -45,28 +48,24 @@ $players = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
   </div>
 
-  <!-- Card Grid View (default) -->
+  <!-- Card Grid View -->
   <div id="cardView" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
     <?php foreach ($players as $player): ?>
       <div class="bg-white dark:bg-gray-800 rounded-2xl shadow p-6 flex flex-col items-center">
-        <!-- Avatar -->
         <img src="<?= htmlspecialchars($player['picture'] ?? '/assets/img/default-avatar.png') ?>"
              alt="<?= htmlspecialchars($player['name']) ?>"
              class="w-16 h-16 rounded-full border-4 border-brand mb-4 object-cover">
 
-        <!-- Name + Stats -->
         <h2 class="text-lg font-semibold mb-2"><?= htmlspecialchars($player['name']) ?></h2>
         <p class="text-sm text-gray-600 dark:text-gray-400">
           Level <?= $player['level'] ?> • <?= $player['xp'] ?> XP
         </p>
 
-        <!-- Games -->
         <div class="flex justify-between w-full mt-4 text-sm">
           <span>Games: <?= $player['games_played'] ?></span>
           <span>Wins: <?= $player['games_won'] ?></span>
         </div>
 
-        <!-- Rank -->
         <div class="mt-3 font-bold text-brand">Rank #<?= $player['rank_position'] ?></div>
       </div>
     <?php endforeach; ?>
@@ -90,7 +89,7 @@ $players = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <tr class="border-b border-gray-300 dark:border-gray-600">
           <td class="px-4 py-2 font-bold text-brand">#<?= $player['rank_position'] ?></td>
           <td class="px-4 py-2 flex items-center gap-3">
-            <img src="<?= htmlspecialchars($player['picture'] ?? 'https://avatars.githubusercontent.com/u/193069706?v=4') ?>"
+            <img src="<?= htmlspecialchars($player['picture'] ?? '/assets/img/default-avatar.png') ?>"
                  alt="<?= htmlspecialchars($player['name']) ?>"
                  class="w-8 h-8 rounded-full object-cover">
             <?= htmlspecialchars($player['name']) ?>
