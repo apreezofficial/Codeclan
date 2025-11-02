@@ -1,0 +1,8 @@
+User-agent: *
+# Disallow access off crawlers to the admin route ( in prod tho ...)
+Disallow: /admin
+Disallow: /admin/
+
+Allow: /
+
+#todo sitemap ---
